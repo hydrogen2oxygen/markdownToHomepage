@@ -42,7 +42,6 @@ public class TransformationTest {
         Node document = parser.parse(markdownString);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         String result = renderer.render(document);
-        System.out.println(result);
         Assert.assertTrue(result.contains("<p>Alternatively, for H1 and H2, an underline-ish style:</p>"));
 
         String htmlFileContent = loadStringFromFile("testHeader.html") + result + loadStringFromFile("testFooter.html");

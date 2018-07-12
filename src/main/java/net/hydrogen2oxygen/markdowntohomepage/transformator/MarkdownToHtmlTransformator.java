@@ -10,9 +10,15 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * TODO process Hugo metadata
  * TODO create one additional page for each tag and category (similar to wordpress)
+ * TODO remove metadata
+ * TODO generate rss.xml
+ * TODO generate sitemap.xml
  */
 public class MarkdownToHtmlTransformator {
+
+    public static final String NEWLINE = "\n";
 
     @Builder
     public static String transformMarkDownToHtml(File source, File header, File footer) throws IOException {
@@ -29,5 +35,36 @@ public class MarkdownToHtmlTransformator {
         String htmlFileContent = headerContent + result + footerContent;
 
         return htmlFileContent;
+    }
+
+    public static String removeMetaData(String markdownContent) {
+
+        String md = StringUtility.cleanString(markdownContent);
+
+        java.lang.StringBuilder strBuilder = new java.lang.StringBuilder();
+        String [] lines = md.split(NEWLINE);
+        boolean metaDataFound = false;
+        boolean metaDataRemoved = false;
+
+        for (String line : lines) {
+
+            if (!metaDataFound && line.equals("---")) {
+                metaDataFound = true;
+                continue;
+            }
+
+            if (!metaDataRemoved && line.equals("---")) {
+                metaDataRemoved = true;
+                continue;
+            }
+
+            if (metaDataFound && !metaDataRemoved) {
+                continue;
+            }
+
+            strBuilder.append(line).append(NEWLINE);
+        }
+
+        return strBuilder.toString();
     }
 }
