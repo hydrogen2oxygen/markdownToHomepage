@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * See library from Atlassian https://github.com/atlassian/commonmark-java
  */
-public class TransformationTest {
+public class SimpleFirstTransformationTest {
 
     /**
      * First I need to know that the commonmark lib works
