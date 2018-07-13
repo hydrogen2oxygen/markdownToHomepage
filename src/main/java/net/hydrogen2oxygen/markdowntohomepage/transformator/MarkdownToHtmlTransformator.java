@@ -25,9 +25,10 @@ public class MarkdownToHtmlTransformator {
     public static String transformMarkDownToHtml(File source, File header, File footer) throws IOException {
 
         String markdownString = FileUtils.readFileToString(source, "UTF-8");
+        MarkDownDocument markDownDocument = extractMarkdownDocumentAndMetaData(markdownString);
 
         Parser parser = Parser.builder().build();
-        Node document = parser.parse(markdownString);
+        Node document = parser.parse(markDownDocument.getContent());
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         String result = renderer.render(document);
 
