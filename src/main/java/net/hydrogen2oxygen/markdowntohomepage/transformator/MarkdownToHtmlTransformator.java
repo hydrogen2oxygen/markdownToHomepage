@@ -30,11 +30,17 @@ public class MarkdownToHtmlTransformator {
         Parser parser = Parser.builder().build();
         Node document = parser.parse(markDownDocument.getContent());
         HtmlRenderer renderer = HtmlRenderer.builder().build();
-        String result = renderer.render(document);
+        String htmlRendered = renderer.render(document);
 
         String headerContent = FileUtils.readFileToString(header, "UTF-8");
         String footerContent = FileUtils.readFileToString(footer, "UTF-8");
-        String htmlFileContent = headerContent + result + footerContent;
+        String h1Title = "";
+
+        if (markDownDocument.getMetaData().get("title") != null) {
+            h1Title = "<h1>" + markDownDocument.getMetaData().get("title") + "</h1>\n";
+        }
+
+        String htmlFileContent = headerContent + h1Title + htmlRendered + footerContent;
 
         return htmlFileContent;
     }

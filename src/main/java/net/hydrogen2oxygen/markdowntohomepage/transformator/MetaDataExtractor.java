@@ -2,6 +2,7 @@ package net.hydrogen2oxygen.markdowntohomepage.transformator;
 
 import lombok.Getter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.MarkDownDocument;
+import org.springframework.util.StringUtils;
 
 public class MetaDataExtractor {
 
@@ -17,11 +18,18 @@ public class MetaDataExtractor {
     public void extractMetaData(String line) {
 
         if (line.contains(":")) {
-            lastTag = cleanMetaData(line);
-            return;
+
+            if (line.split(":").length > 1) {
+                String parts [] = line.split(":");
+                line = parts[1];
+                lastTag = cleanMetaData(parts[0]);
+            } else {
+                lastTag = cleanMetaData(line);
+                return;
+            }
         }
 
-        if (line.contains("-") && lastTag != null) {
+        if (!StringUtils.isEmpty(line) && lastTag != null) {
             setMetaData(line);
         }
     }
