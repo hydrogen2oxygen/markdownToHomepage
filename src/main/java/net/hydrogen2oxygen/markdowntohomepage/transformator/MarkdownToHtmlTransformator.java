@@ -1,6 +1,7 @@
 package net.hydrogen2oxygen.markdowntohomepage.transformator;
 
 import lombok.Builder;
+import net.hydrogen2oxygen.markdowntohomepage.domain.MarkDownDocument;
 import org.apache.commons.io.FileUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -37,19 +38,26 @@ public class MarkdownToHtmlTransformator {
         return htmlFileContent;
     }
 
-    public static String removeMetaData(String markdownContent) {
+    public static MarkDownDocument extractMarkdownDocumentAndMetaData(String markdownContent) {
 
+        MarkDownDocument document = new MarkDownDocument();
         String md = StringUtility.cleanString(markdownContent);
 
         java.lang.StringBuilder strBuilder = new java.lang.StringBuilder();
         String [] lines = md.split(NEWLINE);
         boolean metaDataFound = false;
         boolean metaDataRemoved = false;
+        MetaDataExtractor metaDataExtractor = new MetaDataExtractor(document);
 
         for (String line : lines) {
 
             if (!metaDataFound && line.equals("---")) {
                 metaDataFound = true;
+                continue;
+            }
+
+            if (!metaDataRemoved && !line.equals("---")) {
+                metaDataExtractor.extractMetaData(line);
                 continue;
             }
 
@@ -65,6 +73,9 @@ public class MarkdownToHtmlTransformator {
             strBuilder.append(line).append(NEWLINE);
         }
 
-        return strBuilder.toString();
+        document = metaDataExtractor.getDocument();
+        document.setContent(strBuilder.toString());
+
+        return document;
     }
 }
