@@ -30,6 +30,8 @@ public class MarkdownToHtmlTransformatorTest {
                     builder().
                     source(new File("src/test/resources/2012-03-05-meissner-effect.md")).
                     build();
+            Assert.assertTrue(!transformedHTML.contains("2012-03-05T10:04:45+00:00"));
+            Assert.assertTrue(transformedHTML.length() > 0);
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail("A transformation failed, but it should have worked with just a source input!");

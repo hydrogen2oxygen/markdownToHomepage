@@ -22,7 +22,7 @@ public class MarkdownToHtmlTransformator {
     public static final String NEWLINE = "\n";
 
     @Builder
-    public static String transformMarkDownToHtml(File source, File header, File footer) {
+    public static String transformMarkDownToHtml(File source, String headerContent, String footerContent) {
 
         String markdownString = readFileToString(source);
         MarkDownDocument markDownDocument = extractMarkdownDocumentAndMetaData(markdownString);
@@ -32,8 +32,6 @@ public class MarkdownToHtmlTransformator {
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         String htmlRendered = renderer.render(document);
 
-        String headerContent = readFileToString(header);
-        String footerContent = readFileToString(footer);
         String h1Title = "";
 
         if (markDownDocument.getMetaData().get("title") != null) {

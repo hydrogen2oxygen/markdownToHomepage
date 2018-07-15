@@ -56,8 +56,8 @@ public class SimpleFirstTransformationTest {
         String transformedHTML = MarkdownToHtmlTransformator.
                 builder().
                 source(new File("src/test/resources/2012-03-05-meissner-effect.md")).
-                header(new File("src/test/resources/testHeader.html")).
-                footer(new File("src/test/resources/testFooter.html")).
+                headerContent(loadStringFromFile("testHeader.html")).
+                footerContent(loadStringFromFile("testFooter.html")).
                 build();
         saveStringToFile("target/2012-03-05-meissner-effect.html", transformedHTML);
     }
