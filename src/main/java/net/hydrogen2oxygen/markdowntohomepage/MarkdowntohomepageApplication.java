@@ -34,15 +34,19 @@ public class MarkdowntohomepageApplication {
 
             if ("--servermode".equals(argument)) {
                 serverMode = true;
+                break;
             }
         }
 
-        logger.info("-----------------------------------------");
-
         if (serverMode) {
-            SpringApplication.run(MarkdowntohomepageApplication.class, args);
-            return;
+            startServerMode(args);
+        } else {
+            startCommandLineMode(args);
         }
+    }
+
+    private static void startCommandLineMode(String[] args) throws IOException {
+        logger.info("-----------------------------------------");
 
         if (args.length == 0) {
             logger.info("=== Syntax ===");
@@ -61,5 +65,9 @@ public class MarkdowntohomepageApplication {
         }
 
         logger.info("-----------------------------------------");
+    }
+
+    private static void startServerMode(String args[]) {
+        SpringApplication.run(MarkdowntohomepageApplication.class, args);
     }
 }
