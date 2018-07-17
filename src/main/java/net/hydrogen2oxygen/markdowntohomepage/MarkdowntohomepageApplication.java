@@ -1,11 +1,15 @@
 package net.hydrogen2oxygen.markdowntohomepage;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.hydrogen2oxygen.markdowntohomepage.domain.ConfigurationObject;
+import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import net.hydrogen2oxygen.markdowntohomepage.transformator.TransformFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -40,19 +44,21 @@ public class MarkdowntohomepageApplication {
             return;
         }
 
-        if (args.length < 3) {
+        if (args.length == 0) {
             logger.info("=== Syntax ===");
-            logger.info(" [sourceFolder] [targetFolder] [optional:configurationFile");
+            logger.info("java -jar target/markdowntohomepage-0.0.1-SNAPSHOT.jar [config.json]");
 
             return;
         }
 
+        ObjectMapper mapper = new ObjectMapper();
+        ConfigurationObject configurationObject = mapper.readValue(new File(args[0]), ConfigurationObject.class);
 
-        TransformFolder.builder()
-                .sourceFolderPath(args[0])
-                .targetFolderPath(args[1])
-                .configurationFile(args[2])
-                .build();
+        for (Website website : configurationObject.getWebsites()) {
+            TransformFolder.builder()
+                    .website(website)
+                    .build();
+        }
 
         logger.info("-----------------------------------------");
     }
