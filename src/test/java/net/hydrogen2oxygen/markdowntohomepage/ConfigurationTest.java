@@ -19,7 +19,7 @@ public class ConfigurationTest {
         website.setTargetFolder("target");
         website.setHeaderFile("src/test/resources/testHeader.html");
         website.setFooterFile("src/test/resources/testFooter.html");
-        configurationObject.getWebsites().add(website);
+        configurationObject.getWebsites().put(website.getName(),website);
         ObjectMapper mapper = new ObjectMapper();
 
         mapper.writeValue(new File("target/configurationExample.json"), configurationObject);

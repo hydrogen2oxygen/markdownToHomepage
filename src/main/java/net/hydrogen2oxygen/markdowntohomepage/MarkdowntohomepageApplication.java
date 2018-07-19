@@ -11,6 +11,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Spring Boot Application acts as a server if the argument --servermode is delivered.
@@ -57,8 +59,9 @@ public class MarkdowntohomepageApplication {
 
         ObjectMapper mapper = new ObjectMapper();
         ConfigurationObject configurationObject = mapper.readValue(new File(args[0]), ConfigurationObject.class);
+        List<Website> list = new ArrayList<Website>(configurationObject.getWebsites().values());
 
-        for (Website website : configurationObject.getWebsites()) {
+        for (Website website : list) {
             TransformFolder.builder()
                     .website(website)
                     .build();

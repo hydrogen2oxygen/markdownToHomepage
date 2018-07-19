@@ -10,15 +10,15 @@ Build with maven:
 Write a config.json:
 
     {
-      "websites": [
-        {
+      "websites": {
+        "Test": {
           "name": "Test",
           "sourceFolder": "src/test/resources",
           "targetFolder": "target",
           "headerFile": "src/test/resources/testHeader.html",
           "footerFile": "src/test/resources/testFooter.html"
         }
-      ]
+      }
     }
 
 Then start it with:
