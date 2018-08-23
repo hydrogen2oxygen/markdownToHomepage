@@ -1,5 +1,6 @@
 package net.hydrogen2oxygen.markdowntohomepage.adapter;
 
+import net.hydrogen2oxygen.markdowntohomepage.domain.ResponseData;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import net.hydrogen2oxygen.markdowntohomepage.service.WebsiteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +31,15 @@ public class WebsiteController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<String> create(@RequestBody Website website) throws IOException {
+    public @ResponseBody ResponseEntity<ResponseData> create(Website website) throws IOException {
 
         websiteService.createOrUpdateWebsite(website);
 
-        return new ResponseEntity<String>("Create or update ok!", HttpStatus.OK);
+        return new ResponseEntity<ResponseData>(new ResponseData("Create or update ok!", website), HttpStatus.OK);
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
-    public @ResponseBody ResponseEntity<String> update(@RequestBody Website website) throws IOException {
+    public @ResponseBody ResponseEntity<ResponseData> update(@RequestBody Website website) throws IOException {
 
         return create(website);
     }

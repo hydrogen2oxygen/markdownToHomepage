@@ -13,8 +13,49 @@
     <script src="js/simplemde.min.js"></script>
 </head>
 <body>
-<h1>MD to HTML</h1>
-<textarea id="demo2"># ![hello](https://www.gravatar.com/avatar/c1eeb23e905c6fb458091418d504c569?s=48&d=identicon&r=PG) This one autosaves!
+<div class="container">
+    <h1>MD to HTML</h1>
+    <div class="accordion" id="accordionWebsiteFunctions">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h4 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseCreateNewWebsite" aria-expanded="true" aria-controls="collapseCreateNewWebsite">
+                        Create new Website
+                    </button>
+                </h4>
+            </div>
+
+            <div id="collapseCreateNewWebsite" class="collapse" aria-labelledby="headingOne" data-parent="#accordionWebsiteFunctions">
+                <div class="card-body">
+                    <form id="createNewWebsiteForm">
+                        <div class="form-group">
+                            <label for="websiteName">Name</label>
+                            <input type="text" name="name" class="form-control" id="websiteName" placeholder="Name of your new website">
+                        </div>
+                        <div class="form-group">
+                            <label for="websiteSourceFolder">SourceFolder</label>
+                            <input type="text" name="sourceFolder" class="form-control" id="websiteSourceFolder" placeholder="SourceFolder">
+                        </div>
+                        <div class="form-group">
+                            <label for="websiteTargetFolder">TargetFolder</label>
+                            <input type="text" name="targetFolder" class="form-control" id="websiteTargetFolder" placeholder="TargetFolder">
+                        </div>
+                        <div class="form-group">
+                            <label for="websiteHeaderFile">HeaderFile</label>
+                            <input type="text" name="headerFile" class="form-control" id="websiteHeaderFile" placeholder="HeaderFile">
+                        </div>
+                        <div class="form-group">
+                            <label for="websiteFooterFile">FooterFile</label>
+                            <input type="text" name="footerFile" class="form-control" id="websiteFooterFile" placeholder="FooterFile">
+                        </div>
+                        <button class="btn btn-success" id="buttonCreateNewWebsite">Create New Project</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <textarea id="mdEditor"># ![hello](https://www.gravatar.com/avatar/c1eeb23e905c6fb458091418d504c569?s=48&d=identicon&r=PG) This one autosaves!
 By default, it saves [every 10 seconds](http://time.com), but this can be changed. When this textarea is included in a form, it will automatically forget the saved value when the form is submitted.
 
     mvn clean install
@@ -25,17 +66,24 @@ alert(example);
 ```
 
 TEST2</textarea>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script src="js/mdToWebsite.js"></script>
 <script>
     $(document).ready(function () {
-        console.log("HELLO AGAIN");
+
         new SimpleMDE({
-            element: document.getElementById("demo2"),
+            element: document.getElementById("mdEditor"),
             spellChecker: false,
             autosave: {
                 enabled: true,
                 unique_id: "demo2",
             },
         });
+
+        md.init();
     });
 </script>
 </body>
