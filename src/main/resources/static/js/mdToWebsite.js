@@ -2,18 +2,25 @@
 
 var md = {};
 
-md.init = function() {
-  console.log('Init MD Functionality');
-  // Init buttons
-  $('#buttonCreateNewWebsite').click(md.createNewWebsite);
+md.init = function () {
+    console.log('Init MD Functionality');
+    // Init buttons
+    $('#buttonCreateNewWebsite').click(md.createNewWebsite);
 
-  console.log('End of init');
-  console.log('========================');
+    // Init selectBox projects
+    $.getJSON("website", function (data) {
+        $.each(data, function () {
+            $("#selectProjects").append('<option value="' + this.name + '">' + this.name + '</option>')
+        });
+    });
+
+    console.log('End of init');
+    console.log('========================');
 };
 
 md.createNewWebsite = function () {
     console.log('Create new website');
-    var data = md.objectifyForm($( "#createNewWebsiteForm" ).serializeArray());
+    var data = md.objectifyForm($("#createNewWebsiteForm").serializeArray());
     console.log(data);
 
     $.ajax({
@@ -34,10 +41,10 @@ md.createNewWebsite = function () {
  * serialize data function
  * @param formArray
  */
-md.objectifyForm = function(formArray) {
+md.objectifyForm = function (formArray) {
 
     var returnArray = {};
-    for (var i = 0; i < formArray.length; i++){
+    for (var i = 0; i < formArray.length; i++) {
         returnArray[formArray[i]['name']] = formArray[i]['value'];
     }
     return returnArray;
