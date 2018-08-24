@@ -6,6 +6,7 @@ md.init = function () {
     console.log('Init MD Functionality');
     // Init buttons
     $('#buttonCreateNewWebsite').click(md.createNewWebsite);
+    $('#buttonDeleteWebsite').click(md.deleteWebsite);
 
     // Init selectBox projects
     md.reloadWebsitesSelectBox();
@@ -47,6 +48,27 @@ md.createNewWebsite = function () {
     });
 
     return false;
+};
+
+md.deleteWebsite = function () {
+    console.log('delete selected website');
+    var selectedWebsiteName = $("#selectProjects option:selected").text();
+    console.log(selectedWebsiteName);
+
+    var webSite = {name:selectedWebsiteName};
+    console.log(webSite);
+    var data = JSON.stringify(webSite);
+
+    $.ajax({
+        type: "DELETE",
+        url: "website/"+ encodeURI(selectedWebsiteName),
+        async: true,
+        success: function (response) {
+            console.log(response);
+            md.reloadWebsitesSelectBox();
+            md.message("warning","Project '" + selectedWebsiteName + "' was deleted!");
+        }
+    });
 };
 
 md.message = function (messageType, messageText) {

@@ -44,11 +44,11 @@ public class WebsiteController {
         return create(website);
     }
 
-    @DeleteMapping
-    public @ResponseBody ResponseEntity<String> delete(Website website) throws IOException {
+    @DeleteMapping("{name}")
+    public @ResponseBody ResponseEntity<ResponseData> delete(@PathVariable String name) throws IOException {
 
-        websiteService.delete(website);
+        websiteService.delete(name);
 
-        return new ResponseEntity<String>("DELETE Response", HttpStatus.OK);
+        return new ResponseEntity<ResponseData>(new ResponseData("Delete ok!", null), HttpStatus.OK);
     }
 }

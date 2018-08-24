@@ -75,8 +75,13 @@ public class WebsiteService {
 
     public void delete(Website website) throws IOException {
 
+        delete(website.getName());
+    }
+
+    public void delete(String name) throws IOException {
+
         ConfigurationObject configurationObject = getConfigurationObject();
-        configurationObject.getWebsites().remove(website.getName());
+        configurationObject.getWebsites().remove(name);
         saveConfigurationObject(configurationObject);
     }
 }
