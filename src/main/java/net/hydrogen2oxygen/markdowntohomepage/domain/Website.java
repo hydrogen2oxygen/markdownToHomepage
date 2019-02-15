@@ -14,4 +14,7 @@ public class Website {
     private String targetFolder;
     private String headerFile;
     private String footerFile;
+    private String gitUrl;
+    private String gitUser;
+    private String gitPassword;
 }

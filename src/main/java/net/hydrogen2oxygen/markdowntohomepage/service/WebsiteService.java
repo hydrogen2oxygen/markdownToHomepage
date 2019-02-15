@@ -1,8 +1,20 @@
 package net.hydrogen2oxygen.markdowntohomepage.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import lombok.Setter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.ConfigurationObject;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
+import net.hydrogen2oxygen.markdowntohomepage.transformator.StringUtility;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.TransportConfigCallback;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +27,7 @@ import java.util.List;
 @Component
 public class WebsiteService {
 
+    @Setter
     @Value("${configFile:config.json}")
     private String configFilePath;
 
@@ -24,6 +37,10 @@ public class WebsiteService {
         mapper.addMixIn(ConfigurationObject.class, Website.class);
         ConfigurationObject configurationObject;
         File configFile = new File(configFilePath);
+
+        if (!configFile.getParentFile().exists()) {
+            configFile.getParentFile().mkdir();
+        }
 
         if (!configFile.exists()) {
             configurationObject = new ConfigurationObject();
@@ -45,7 +62,7 @@ public class WebsiteService {
 
         Collection<Website> websites = loadAllWebsites();
 
-        for (Website website: websites) {
+        for (Website website : websites) {
             if (name.equals(website.getName())) {
                 return website;
             }
@@ -66,7 +83,7 @@ public class WebsiteService {
 
         removeEmptyWebsite(configurationObject);
 
-        mapper.writeValue(new File("config.json"), configurationObject);
+        mapper.writeValue(new File(configFilePath), configurationObject);
     }
 
     private void removeEmptyWebsite(ConfigurationObject configurationObject) {
@@ -83,5 +100,57 @@ public class WebsiteService {
         ConfigurationObject configurationObject = getConfigurationObject();
         configurationObject.getWebsites().remove(name);
         saveConfigurationObject(configurationObject);
+    }
+
+    public void synchronizeWebsite(final Website website) throws IOException, GitAPIException, JSchException {
+
+        if (StringUtility.isEmpty(website.getGitUrl())) {
+            System.err.println("Website config has no git url!");
+            return;
+        }
+
+        if (StringUtility.isEmpty(website.getSourceFolder())) {
+            File sourceDir = new File(new File(configFilePath).getParentFile().getAbsolutePath() + "/" + website.getName().replaceAll(" ", ""));
+
+            if (!sourceDir.exists()) {
+                sourceDir.mkdir();
+                website.setSourceFolder(sourceDir.getAbsolutePath());
+                createOrUpdateWebsite(website);
+            }
+        }
+
+
+
+        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
+            @Override
+            protected void configure(OpenSshConfig.Host host, Session session ) {
+                session.setConfig("StrictHostKeyChecking", "no");
+                session.setPassword(website.getGitPassword());
+            }
+        };
+
+        CloneCommand cloneCommand = Git.cloneRepository();
+        cloneCommand.setURI( website.getGitUrl() );
+        cloneCommand.setDirectory(new File(website.getSourceFolder()));
+        cloneCommand.setTransportConfigCallback( new TransportConfigCallback() {
+            @Override
+            public void configure( Transport transport ) {
+                SshTransport sshTransport = ( SshTransport )transport;
+                sshTransport.setSshSessionFactory( sshSessionFactory );
+            }
+        } );
+
+        cloneCommand.call();
+    }
+
+    private String getWebsiteHost(Website website) {
+
+        if (website.getGitUrl().contains("ssh")) {
+
+            String host = website.getGitUrl().replace("ssh://","");
+            host = host.substring(0,host.indexOf(":"));
+            return host;
+        }
+        return  website.getGitUrl();
     }
 }
