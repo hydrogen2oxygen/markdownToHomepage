@@ -19,7 +19,6 @@ public class ObjectDialog extends JDialog implements ActionListener {
     private List<ObjectDialogTextfield> textfieldList = new ArrayList<>();
 
     public ObjectDialog(Object o) {
-        super();
         init(o);
     }
 

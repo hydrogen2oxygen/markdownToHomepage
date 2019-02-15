@@ -13,7 +13,7 @@ public class ObjectDialogTest {
         Website website = new Website();
         Assert.assertEquals(null, website.getName());
 
-        ObjectDialog objectDialog = new ObjectDialog(null, website);
+        ObjectDialog objectDialog = new ObjectDialog(website);
 
         website = (Website) objectDialog.getObject();
         Assert.assertEquals("", website.getName());
