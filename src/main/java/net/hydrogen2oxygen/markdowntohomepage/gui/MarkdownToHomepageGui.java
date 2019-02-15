@@ -1,6 +1,7 @@
 package net.hydrogen2oxygen.markdowntohomepage.gui;
 
 import lombok.Getter;
+import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,6 +88,11 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         String actionCommand = e.getActionCommand();
+
+        if ("New Blog".equals(actionCommand)) {
+            ObjectDialog objectDialog = new ObjectDialog(new Website());
+            objectDialog.setVisible(true);
+        }
 
         if ("Exit".equals(actionCommand)) {
             dispose();
