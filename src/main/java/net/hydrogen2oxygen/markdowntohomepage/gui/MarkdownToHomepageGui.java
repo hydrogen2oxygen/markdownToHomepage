@@ -192,9 +192,6 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
-        postListOverviewFrame.setBounds(20,20,400,800);
-        postListOverviewFrame.setVisible(true);
-
         try {
             postListOverviewFrame.setSelected(true);
         } catch (PropertyVetoException e) {

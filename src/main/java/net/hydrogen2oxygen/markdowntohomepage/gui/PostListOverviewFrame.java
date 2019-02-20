@@ -31,6 +31,9 @@ public class PostListOverviewFrame extends JInternalFrame {
         });
 
         reloadWebsiteContent();
+
+        setBounds(20,20,400,800);
+        setVisible(true);
     }
 
     private void handleMouseClick(MouseEvent evt) {
@@ -39,6 +42,8 @@ public class PostListOverviewFrame extends JInternalFrame {
 
             int index = list.locationToIndex(evt.getPoint());
             System.out.println(listModel.get(index));
+            PostEditorInternalFrame postEditorInternalFrame = new PostEditorInternalFrame(website, (String) listModel.get(index));
+            MarkdownToHomepageGui.getInstance().getDesktop().add(postEditorInternalFrame);
         }
     }
 
