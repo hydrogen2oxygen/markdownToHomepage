@@ -4,12 +4,15 @@ import com.jcraft.jsch.JSchException;
 import lombok.Getter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import net.hydrogen2oxygen.markdowntohomepage.service.WebsiteService;
+import net.hydrogen2oxygen.markdowntohomepage.transformator.StringUtility;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyVetoException;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -168,11 +171,19 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     }
 
     private void loadWebsite(Website website) {
+
         System.out.println("load website ...");
         System.out.println(website);
 
+        final PostListOverviewFrame postListOverviewFrame = new PostListOverviewFrame(website);
+
         try {
-            websiteService.synchronizeWebsite(website);
+            websiteService.synchronizeWebsite(website, new ICallback() {
+                @Override
+                public void execute(Object object) {
+                    postListOverviewFrame.reloadWebsiteContent();
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         } catch (GitAPIException e) {
@@ -180,5 +191,16 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         } catch (JSchException e) {
             e.printStackTrace();
         }
+
+        postListOverviewFrame.setBounds(20,20,400,800);
+        postListOverviewFrame.setVisible(true);
+
+        try {
+            postListOverviewFrame.setSelected(true);
+        } catch (PropertyVetoException e) {
+            e.printStackTrace();
+        }
+
+        desktop.add(postListOverviewFrame);
     }
 }

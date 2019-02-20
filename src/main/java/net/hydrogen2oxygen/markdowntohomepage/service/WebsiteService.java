@@ -7,6 +7,9 @@ import com.jcraft.jsch.Session;
 import lombok.Setter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.ConfigurationObject;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
+import net.hydrogen2oxygen.markdowntohomepage.gui.ICallback;
+import net.hydrogen2oxygen.markdowntohomepage.gui.MarkdownToHomepageGui;
+import net.hydrogen2oxygen.markdowntohomepage.gui.PostListOverviewFrame;
 import net.hydrogen2oxygen.markdowntohomepage.transformator.StringUtility;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -101,30 +104,41 @@ public class WebsiteService {
         saveConfigurationObject(configurationObject);
     }
 
-    public void synchronizeWebsite(final Website website) throws IOException, GitAPIException, JSchException {
+    public void synchronizeWebsite(final Website website, ICallback callback) throws IOException, GitAPIException, JSchException {
 
-        if (StringUtility.isEmpty(website.getGitUrl())) {
-            System.err.println("Website config has no git url!");
-            return;
-        }
+        new Runnable(){
 
-        if (StringUtility.isEmpty(website.getSourceFolder())) {
-            File sourceDir = new File(new File(configFilePath).getParentFile().getAbsolutePath() + "/" + website.getName().replaceAll(" ", ""));
+            @Override
+            public void run() {
 
-            if (!sourceDir.exists()) {
-                sourceDir.mkdir();
-                website.setSourceFolder(sourceDir.getAbsolutePath());
-                createOrUpdateWebsite(website);
+                try {
+                    if (StringUtility.isEmpty(website.getGitUrl())) {
+                        System.err.println("Website config has no git url!");
+                        return;
+                    }
+
+                    if (StringUtility.isEmpty(website.getSourceFolder())) {
+                        File sourceDir = new File(new File(configFilePath).getParentFile().getAbsolutePath() + "/" + website.getName().replaceAll(" ", ""));
+
+                        if (!sourceDir.exists()) {
+                            sourceDir.mkdir();
+                            website.setSourceFolder(sourceDir.getAbsolutePath());
+                            createOrUpdateWebsite(website);
+                        }
+                    }
+
+                    if (!new File(website.getSourceFolder() + "/content").exists()) {
+                        cloneRepository(website);
+                    } else {
+                        synchronizeRepository(website);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    callback.execute(website);
+                }
             }
-        }
-
-        if (!new File(website.getSourceFolder() + "/content").exists()) {
-            cloneRepository(website);
-        } else {
-            synchronizeRepository(website);
-        }
-
-        return;
+        }.run();
     }
 
     private void synchronizeRepository(Website website) throws IOException, GitAPIException {
@@ -139,10 +153,7 @@ public class WebsiteService {
         pullCommand.setCredentialsProvider(credentials);
         pullCommand.setTransportConfigCallback(getTransportConfigCallback(sshSessionFactory));
         PullResult pullResult = pullCommand.call();
-
-        if (pullResult.isSuccessful()) {
-            // TODO
-        }
+        System.out.println(pullResult);
     }
 
     private void cloneRepository(Website website) throws GitAPIException {
