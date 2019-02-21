@@ -13,7 +13,7 @@ public class ObjectDialog extends JDialog implements ActionListener {
 
     @Getter
     private Object object;
-    private List<ObjectDialogTextfield> textfieldList = new ArrayList<>();
+    private List<DynamicTextfield> textfieldList = new ArrayList<>();
 
     public ObjectDialog(Object o) {
         init(o);
@@ -49,7 +49,7 @@ public class ObjectDialog extends JDialog implements ActionListener {
 
         if ("Save".equals(e.getActionCommand())) {
 
-            for (ObjectDialogTextfield dialogTextfield : textfieldList) {
+            for (DynamicTextfield dialogTextfield : textfieldList) {
                 try {
                     dialogTextfield.transferValueToObject();
                 } catch (InvocationTargetException e1) {

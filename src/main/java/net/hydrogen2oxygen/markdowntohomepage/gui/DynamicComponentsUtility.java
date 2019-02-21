@@ -12,7 +12,7 @@ public class DynamicComponentsUtility {
     private DynamicComponentsUtility() {
     }
 
-    public static int insertDynamicTextfields(Container container, Object object, List<ObjectDialogTextfield> textfieldList, int y) {
+    public static int insertDynamicTextfields(Container container, Object object, List<DynamicTextfield> textfieldList, int y) {
         try {
             Method[] methods = object.getClass().getDeclaredMethods();
 
@@ -34,12 +34,19 @@ public class DynamicComponentsUtility {
 
                     final Class<?>[] parameterTypes = method.getParameterTypes();
                     if (parameterTypes.length == 1) {
-                        System.out.println(method.getName());
-                        method.invoke(object, "");
 
-                        ObjectDialogTextfield objectDialogTextfield = new ObjectDialogTextfield(object, method, y);
+                        DynamicTextfield objectDialogTextfield = new DynamicTextfield(object, method, y);
                         objectDialogTextfield.addToComponent(container);
                         textfieldList.add(objectDialogTextfield);
+
+                        Method getMethod = object.getClass().getMethod(method.getName().replace("set","get"));
+
+                        if (getMethod != null && getMethod.invoke(object) != null) {
+                            String value = String.valueOf(getMethod.invoke(object));
+                            System.out.println(value);
+                            objectDialogTextfield.getTextField().setText(value);
+                        }
+
                         y += 20;
                     }
                 }
