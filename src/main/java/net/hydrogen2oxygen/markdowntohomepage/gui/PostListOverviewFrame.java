@@ -1,11 +1,14 @@
 package net.hydrogen2oxygen.markdowntohomepage.gui;
 
+import com.jcraft.jsch.JSchException;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 
 public class PostListOverviewFrame extends JInternalFrame {
 
@@ -51,6 +54,27 @@ public class PostListOverviewFrame extends JInternalFrame {
 
         System.out.println("Reload website");
         File folder = new File(website.getSourceFolder() + "/content/posts/");
+
+        if (folder.listFiles() == null) {
+            try {
+                MarkdownToHomepageGui.getInstance().getWebsiteService().synchronizeWebsite(website, new ICallback() {
+                    @Override
+                    public void execute(Object object) {
+                        for (File file : folder.listFiles()) {
+                            listModel.addElement(file.getName());
+                        }
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            } catch (JSchException e) {
+                e.printStackTrace();
+            }
+
+            return;
+        }
 
         for (File file : folder.listFiles()) {
             listModel.addElement(file.getName());

@@ -4,7 +4,6 @@ import com.jcraft.jsch.JSchException;
 import lombok.Getter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import net.hydrogen2oxygen.markdowntohomepage.service.WebsiteService;
-import net.hydrogen2oxygen.markdowntohomepage.transformator.StringUtility;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import javax.swing.*;
@@ -12,7 +11,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +25,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     private JMenuBar menuBar;
     @Getter
     private JDesktopPane desktop;
+    @Getter
     private WebsiteService websiteService;
 
     private MarkdownToHomepageGui() {

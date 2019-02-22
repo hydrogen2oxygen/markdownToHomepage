@@ -7,6 +7,8 @@ import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +48,15 @@ public class PostEditorInternalFrame extends JInternalFrame {
         y = DynamicComponentsUtility.insertDynamicTextfields(this, postDetails, textfieldList, y);
         postDetailPanel.setPreferredSize(new Dimension(width, y + 10));
         postDetailPanel.setBounds(0, 0, width - 10, y + 10);
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                savePost();
+            }
+        });
+        saveButton.setBounds(10, y, 200, 20);
+        postDetailPanel.add(saveButton);
         setTextfieldColors();
         add(postDetailPanel);
 
@@ -74,6 +85,59 @@ public class PostEditorInternalFrame extends JInternalFrame {
         toFront();
         moveToFront();
         scrollToTop();
+    }
+
+    private void savePost() {
+        System.err.println("-----------------");
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("---\n");
+        stringBuilder.append("title: ").append(getTextFieldValue("title")).append("\n");
+        stringBuilder.append("author: ").append(getTextFieldValue("author")).append("\n");
+        stringBuilder.append("type: ").append(getTextFieldValue("type")).append("\n");
+        stringBuilder.append("date: ").append(getTextFieldValue("date")).append("\n");
+        stringBuilder.append("url: ").append(getTextFieldValue("url")).append("\n");
+        appendList(stringBuilder,"categories");
+        appendList(stringBuilder,"tags");
+
+        stringBuilder.append("---\n");
+
+        stringBuilder.append(textArea.getText());
+
+        try {
+            FileUtils.writeStringToFile(postFile, stringBuilder.toString(),"UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(stringBuilder);
+
+    }
+
+    private void appendList(StringBuilder stringBuilder, String key) {
+        if (getTextFieldValue(key).length() > 0) {
+
+            StringBuilder tagsString = new StringBuilder();
+            String tags[] = getTextFieldValue(key).split(",");
+            stringBuilder.append(key).append(": \n");
+
+            for (String tag : tags) {
+                stringBuilder.append("  - ");
+                stringBuilder.append(tag);
+                stringBuilder.append("\n");
+            }
+        }
+    }
+
+    private String getTextFieldValue(String key) {
+
+        for (DynamicTextfield textfield : textfieldList) {
+            if (textfield.getLabel().getText().toLowerCase().equals(key.toLowerCase())) {
+                return textfield.getTextField().getText();
+            }
+        }
+
+        return "";
     }
 
     private void loadContent() {
