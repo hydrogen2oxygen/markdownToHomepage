@@ -19,6 +19,7 @@ public class MarkdownToHtmlTransformatorTest {
         Assert.assertTrue(!document.getContent().contains("2012-03-05T10:04:45+00:00"));
         Assert.assertTrue(document.getContent().length() > 0);
         Assert.assertTrue(document.getMetaData().size() > 0);
+        Assert.assertTrue(document.getMetaData().get("tags").length() > 0);
         Assert.assertTrue("Uncategorized".equals(document.getMetaData().get("categories")));
     }
 

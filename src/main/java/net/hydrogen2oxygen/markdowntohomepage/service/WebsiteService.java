@@ -7,11 +7,13 @@ import com.jcraft.jsch.Session;
 import lombok.Setter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.ConfigurationObject;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
+import net.hydrogen2oxygen.markdowntohomepage.gui.ICallback;
+import net.hydrogen2oxygen.markdowntohomepage.gui.MarkdownToHomepageGui;
+import net.hydrogen2oxygen.markdowntohomepage.gui.PostListOverviewFrame;
 import net.hydrogen2oxygen.markdowntohomepage.transformator.StringUtility;
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.*;
@@ -102,43 +104,89 @@ public class WebsiteService {
         saveConfigurationObject(configurationObject);
     }
 
-    public void synchronizeWebsite(final Website website) throws IOException, GitAPIException, JSchException {
+    public void synchronizeWebsite(final Website website, ICallback callback) throws IOException, GitAPIException, JSchException {
 
-        if (StringUtility.isEmpty(website.getGitUrl())) {
-            System.err.println("Website config has no git url!");
-            return;
-        }
+        new Runnable(){
 
-        if (StringUtility.isEmpty(website.getSourceFolder())) {
-            File sourceDir = new File(new File(configFilePath).getParentFile().getAbsolutePath() + "/" + website.getName().replaceAll(" ", ""));
-
-            if (!sourceDir.exists()) {
-                sourceDir.mkdir();
-                website.setSourceFolder(sourceDir.getAbsolutePath());
-                createOrUpdateWebsite(website);
-            }
-        }
-
-        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
             @Override
-            protected void configure(OpenSshConfig.Host host, Session session ) {
-                session.setConfig("StrictHostKeyChecking", "no");
-                session.setPassword(website.getGitPassword());
+            public void run() {
+
+                try {
+                    if (StringUtility.isEmpty(website.getGitUrl())) {
+                        System.err.println("Website config has no git url!");
+                        return;
+                    }
+
+                    if (StringUtility.isEmpty(website.getSourceFolder())) {
+                        File sourceDir = new File(new File(configFilePath).getParentFile().getAbsolutePath() + "/" + website.getName().replaceAll(" ", ""));
+
+                        if (!sourceDir.exists()) {
+                            sourceDir.mkdir();
+                            website.setSourceFolder(sourceDir.getAbsolutePath());
+                            createOrUpdateWebsite(website);
+                        }
+                    }
+
+                    if (!new File(website.getSourceFolder() + "/content").exists()) {
+                        cloneRepository(website);
+                    } else {
+                        synchronizeRepository(website);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    callback.execute(website);
+                }
             }
-        };
+        }.run();
+    }
+
+    private void synchronizeRepository(Website website) throws IOException, GitAPIException {
+
+        System.out.println("Synchronize repo " + website.getGitUrl() + " ...");
+        SshSessionFactory sshSessionFactory = getSshSessionFactory(website);
+        Repository repository = new FileRepository(new File(website.getSourceFolder() + "/.git/"));
+        Git git = new Git(repository);
+
+        PullCommand pullCommand = git.pull();
+        CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(website.getGitUser(), website.getGitPassword());
+        pullCommand.setCredentialsProvider(credentials);
+        pullCommand.setTransportConfigCallback(getTransportConfigCallback(sshSessionFactory));
+        PullResult pullResult = pullCommand.call();
+        System.out.println(pullResult);
+    }
+
+    private void cloneRepository(Website website) throws GitAPIException {
+
+        System.out.println("Clone repo " + website.getGitUrl() + " ...");
+
+        SshSessionFactory sshSessionFactory = getSshSessionFactory(website);
 
         CloneCommand cloneCommand = Git.cloneRepository();
         cloneCommand.setURI( website.getGitUrl() );
         cloneCommand.setDirectory(new File(website.getSourceFolder()));
-        cloneCommand.setTransportConfigCallback( new TransportConfigCallback() {
+        cloneCommand.setTransportConfigCallback(getTransportConfigCallback(sshSessionFactory));
+        cloneCommand.call();
+    }
+
+    private TransportConfigCallback getTransportConfigCallback(final SshSessionFactory sshSessionFactory) {
+        return new TransportConfigCallback() {
             @Override
             public void configure( Transport transport ) {
                 SshTransport sshTransport = ( SshTransport )transport;
                 sshTransport.setSshSessionFactory( sshSessionFactory );
             }
-        } );
+        };
+    }
 
-        cloneCommand.call();
+    private SshSessionFactory getSshSessionFactory(Website website) {
+        return new JschConfigSessionFactory() {
+                @Override
+                protected void configure(OpenSshConfig.Host host, Session session ) {
+                    session.setConfig("StrictHostKeyChecking", "no");
+                    session.setPassword(website.getGitPassword());
+                }
+            };
     }
 
     private String getWebsiteHost(Website website) {

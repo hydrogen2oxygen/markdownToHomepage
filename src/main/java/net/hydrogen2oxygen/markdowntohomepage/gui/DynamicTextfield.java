@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @Data
-public class ObjectDialogTextfield {
+public class DynamicTextfield {
 
     private JLabel label;
     private JTextField textField;
@@ -16,7 +16,7 @@ public class ObjectDialogTextfield {
     private Object object;
     private Integer y;
 
-    public ObjectDialogTextfield(Object object, Method method, int y) {
+    public DynamicTextfield(Object object, Method method, int y) {
         this.object = object;
         this.method = method;
         this.y = y;

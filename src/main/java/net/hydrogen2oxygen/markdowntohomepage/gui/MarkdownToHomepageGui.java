@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +25,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     private JMenuBar menuBar;
     @Getter
     private JDesktopPane desktop;
+    @Getter
     private WebsiteService websiteService;
 
     private MarkdownToHomepageGui() {
@@ -168,11 +170,19 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     }
 
     private void loadWebsite(Website website) {
+
         System.out.println("load website ...");
         System.out.println(website);
 
+        final PostListOverviewFrame postListOverviewFrame = new PostListOverviewFrame(website);
+
         try {
-            websiteService.synchronizeWebsite(website);
+            websiteService.synchronizeWebsite(website, new ICallback() {
+                @Override
+                public void execute(Object object) {
+                    postListOverviewFrame.reloadWebsiteContent();
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         } catch (GitAPIException e) {
@@ -180,5 +190,13 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         } catch (JSchException e) {
             e.printStackTrace();
         }
+
+        try {
+            postListOverviewFrame.setSelected(true);
+        } catch (PropertyVetoException e) {
+            e.printStackTrace();
+        }
+
+        desktop.add(postListOverviewFrame);
     }
 }
