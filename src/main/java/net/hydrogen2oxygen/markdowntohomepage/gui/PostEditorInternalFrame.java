@@ -122,6 +122,15 @@ public class PostEditorInternalFrame extends JInternalFrame {
             stringBuilder.append(key).append(": \n");
 
             for (String tag : tags) {
+
+                if (tag == null) continue;
+
+                tag = tag.replaceAll(" ","").trim();
+
+                if (tag.length() == 0) {
+                    continue;
+                }
+
                 stringBuilder.append("  - ");
                 stringBuilder.append(tag);
                 stringBuilder.append("\n");
