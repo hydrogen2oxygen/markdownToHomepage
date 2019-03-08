@@ -5,14 +5,10 @@ import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 public class TransformFolder {
 
@@ -23,6 +19,8 @@ public class TransformFolder {
 
         File sourceFolder = new File(website.getSourceFolder());
         File targetFolder = new File(website.getTargetFolder());
+
+        System.out.println(targetFolder.getAbsolutePath());
 
         if (!(sourceFolder.isDirectory() || sourceFolder.exists())) {
             logger.error("Source is not a folder or does not exist.");

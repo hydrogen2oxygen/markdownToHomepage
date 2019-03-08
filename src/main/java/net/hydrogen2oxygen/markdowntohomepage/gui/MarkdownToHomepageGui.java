@@ -1,9 +1,13 @@
 package net.hydrogen2oxygen.markdowntohomepage.gui;
 
 import com.jcraft.jsch.JSchException;
+import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
+import io.undertow.server.handlers.resource.PathResourceManager;
 import lombok.Getter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import net.hydrogen2oxygen.markdowntohomepage.service.WebsiteService;
+import net.hydrogen2oxygen.markdowntohomepage.transformator.TransformFolder;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import javax.swing.*;
@@ -12,10 +16,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import static io.undertow.Handlers.resource;
 import static javax.swing.JSplitPane.DIVIDER;
 
 public class MarkdownToHomepageGui extends JFrame implements ActionListener {
@@ -27,6 +33,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     private JDesktopPane desktop;
     @Getter
     private WebsiteService websiteService;
+    //private Server server;
 
     private MarkdownToHomepageGui() {
 
@@ -61,13 +68,13 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     }
 
     private void createMenuItems() {
-        createMenuItem("File", "New Blog", DIVIDER, "Exit");
-        createWebsiteMenuItems();
+        createMenuItem("File", "New Blog", "Export all Websites to HTML", DIVIDER, "Exit");
+        createWebsiteMenuItems("Websites", "Load", "Generate", "Serve");
         createMenuItem("Git", "Commit", "Pull", "Push");
         createMenuItem("FTP", "Upload");
     }
 
-    private void createWebsiteMenuItems() {
+    private void createWebsiteMenuItems(String menuName, String... commandPrefixes) {
 
         java.util.List<String> websiteNames = new ArrayList<>();
 
@@ -76,7 +83,10 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
 
             for (Website website : websites) {
                 if (website.getName().length() > 0) {
-                    websiteNames.add(website.getName());
+
+                    for (String commandPrefix : commandPrefixes) {
+                        websiteNames.add(commandPrefix + " " + website.getName());
+                    }
                 }
             }
         } catch (IOException e) {
@@ -87,7 +97,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         String[] list = new String[websiteNames.size()];
         list = websiteNames.toArray(list);
 
-        createMenuItem("Websites", list);
+        createMenuItem(menuName, list);
     }
 
     private void createMenuItem(String menuName, String... items) {
@@ -144,6 +154,32 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
             return;
         }
 
+        if (actionCommand.startsWith("Generate ")) {
+
+            try {
+                Website website = websiteService.getByName(actionCommand.replace("Generate ",""));
+                TransformFolder.builder()
+                        .website(website)
+                        .build();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            return;
+        }
+
+        if (actionCommand.startsWith("Serve ")) {
+
+            try {
+                Website website = websiteService.getByName(actionCommand.replace("Serve ",""));
+                startLocalServer(website);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            return;
+        }
+
         if ("Exit".equals(actionCommand)) {
             dispose();
             return;
@@ -164,13 +200,25 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
             return;
         }
 
-        try {
-            if (loadWebsite(actionCommand)) {
-                return;
+        if (actionCommand.startsWith("Load ")) {
+            try {
+                if (loadWebsite(actionCommand.replace("Load ", ""))) {
+                    return;
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
-        } catch (IOException e1) {
-            e1.printStackTrace();
         }
+    }
+
+    private void startLocalServer(Website website) {
+
+        Undertow.builder()
+                .addHttpListener(7070, "localhost")
+                .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
+                .setHandler(resource(new PathResourceManager(Paths.get(website.getTargetFolder()), 100))
+                        .setDirectoryListingEnabled(true))
+                .build().start();
     }
 
     private boolean loadWebsite(String websiteName) throws IOException {
