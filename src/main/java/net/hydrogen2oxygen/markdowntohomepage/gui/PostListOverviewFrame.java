@@ -53,7 +53,7 @@ public class PostListOverviewFrame extends JInternalFrame {
     public void reloadWebsiteContent() {
 
         System.out.println("Reload website");
-        File folder = new File(website.getSourceFolder() + "/content/posts/");
+        File folder = new File(website.getSourceFolder());
 
         if (folder.listFiles() == null) {
             try {
@@ -61,7 +61,9 @@ public class PostListOverviewFrame extends JInternalFrame {
                     @Override
                     public void execute(Object object) {
                         for (File file : folder.listFiles()) {
-                            listModel.addElement(file.getName());
+                            if (file.getName().endsWith("md")) {
+                                listModel.addElement(file.getName());
+                            }
                         }
                     }
                 });
@@ -77,7 +79,9 @@ public class PostListOverviewFrame extends JInternalFrame {
         }
 
         for (File file : folder.listFiles()) {
-            listModel.addElement(file.getName());
+            if (file.getName().endsWith("md")) {
+                listModel.addElement(file.getName());
+            }
         }
     }
 }

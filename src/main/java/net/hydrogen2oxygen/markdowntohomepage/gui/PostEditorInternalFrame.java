@@ -30,7 +30,7 @@ public class PostEditorInternalFrame extends JInternalFrame {
         int width = 1000;
         int height = 800;
 
-        postFile = new File(website.getSourceFolder() + "/content/posts/" + postFileName);
+        postFile = new File(website.getSourceFolder() + "/" + postFileName);
 
         loadContent();
 
