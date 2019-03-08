@@ -63,6 +63,8 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     private void createMenuItems() {
         createMenuItem("File", "New Blog", DIVIDER, "Exit");
         createWebsiteMenuItems();
+        createMenuItem("Git", "Commit", "Pull", "Push");
+        createMenuItem("FTP", "Upload");
     }
 
     private void createWebsiteMenuItems() {
@@ -82,7 +84,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         }
 
         Collections.sort(websiteNames);
-        String [] list = new String[websiteNames.size()];
+        String[] list = new String[websiteNames.size()];
         list = websiteNames.toArray(list);
 
         createMenuItem("Websites", list);
@@ -109,7 +111,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String [] args) {
+    public static void main(String[] args) {
         getInstance();
     }
 
@@ -144,6 +146,21 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
 
         if ("Exit".equals(actionCommand)) {
             dispose();
+            return;
+        }
+
+        if ("Commit".equals(actionCommand)) {
+            websiteService.commit();
+            return;
+        }
+
+        if ("Pull".equals(actionCommand)) {
+            websiteService.pull();
+            return;
+        }
+
+        if ("Push".equals(actionCommand)) {
+            websiteService.push();
             return;
         }
 

@@ -22,9 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class WebsiteService {
@@ -198,5 +196,57 @@ public class WebsiteService {
             return host;
         }
         return  website.getGitUrl();
+    }
+
+    public void commit() {
+
+        try {
+            for (Website website : loadAllWebsites()) {
+
+                System.out.println("Commit " + website.getName() + " ... ");
+                Repository repository = new FileRepository(new File(website.getSourceFolder() + "/.git/"));
+                Git git = new Git(repository);
+                git.add().addFilepattern(".").call();
+                git.commit().setMessage("Initial commit " + Calendar.getInstance().getTimeInMillis()).call();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pull() {
+
+        try {
+            for (Website website : loadAllWebsites()) {
+                synchronizeRepository(website);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void push() {
+
+        try {
+            for (Website website : loadAllWebsites()) {
+
+                Repository repository = new FileRepository(new File(website.getSourceFolder() + "/.git/"));
+                SshSessionFactory sshSessionFactory = getSshSessionFactory(website);
+                Git git = new Git(repository);
+                PushCommand pushCommand = git.push();
+                CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(website.getGitUser(), website.getGitPassword());
+                pushCommand.setCredentialsProvider(credentials);
+                pushCommand.setTransportConfigCallback(getTransportConfigCallback(sshSessionFactory));
+                pushCommand.call();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
     }
 }
