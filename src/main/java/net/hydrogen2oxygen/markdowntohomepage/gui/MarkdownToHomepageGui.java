@@ -33,7 +33,6 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     private JDesktopPane desktop;
     @Getter
     private WebsiteService websiteService;
-    //private Server server;
 
     private MarkdownToHomepageGui() {
 
@@ -68,7 +67,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     }
 
     private void createMenuItems() {
-        createMenuItem("File", "New Blog", "Export all Websites to HTML", DIVIDER, "Exit");
+        createMenuItem("File", "New Blog", DIVIDER, "Exit");
         createWebsiteMenuItems("Websites", "Load", "Generate", "Serve");
         createMenuItem("Git", "Commit", "Pull", "Push");
         createMenuItem("FTP", "Upload");

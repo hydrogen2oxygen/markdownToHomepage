@@ -1,6 +1,7 @@
 package net.hydrogen2oxygen.markdowntohomepage.transformator;
 
 import lombok.Builder;
+import net.hydrogen2oxygen.markdowntohomepage.domain.PostDetails;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -32,21 +33,27 @@ public class TransformFolder {
             logger.error(targetFolder.getAbsolutePath());
         }
 
-        String headerContent = "";
-        String footerContent = "";
+        String headerContentTemplate = "";
+        String footerContentTemplate = "";
 
         if (!StringUtils.isEmpty(website.getHeaderFile())) {
-            headerContent = FileUtils.readFileToString(new File(website.getHeaderFile()), "UTF-8");
+            headerContentTemplate = FileUtils.readFileToString(new File(website.getHeaderFile()), "UTF-8");
         }
 
         if (!StringUtils.isEmpty(website.getFooterFile())) {
-            footerContent = FileUtils.readFileToString(new File(website.getFooterFile()), "UTF-8");
+            footerContentTemplate = FileUtils.readFileToString(new File(website.getFooterFile()), "UTF-8");
         }
 
         for (File sourceFile : sourceFolder.listFiles()) {
 
             if (!sourceFile.isFile()) continue;
             if (!sourceFile.getName().endsWith(".md")) continue;
+
+            String content = FileUtils.readFileToString(sourceFile, "UTF-8");
+            PostDetails postDetails = new PostDetails();
+            PostDetailsUtility.prefillPostDetails(content, postDetails);
+            String headerContent = replaceAttributes(headerContentTemplate, postDetails);
+            String footerContent = replaceAttributes(footerContentTemplate, postDetails);
 
             String transformedHTML = MarkdownToHtmlTransformator.
                     builder().
@@ -58,6 +65,41 @@ public class TransformFolder {
 
             logger.info(sourceFile.getName());
         }
+    }
+
+    private static String replaceAttributes(String template, PostDetails postDetails) {
+
+        String text = template
+                .replaceAll("#TITLE#", postDetails.getTitle())
+                .replaceAll("#AUTHOR#", postDetails.getAuthor())
+                .replaceAll("#DATE#", postDetails.getDate())
+                .replaceAll("#CATEGORIES#", generateCategoriesHtml(postDetails.getCategories()))
+                .replaceAll("#TAGS#", generateTagsHtml(postDetails.getTags()));
+        return text;
+    }
+
+    private static String generateTagsHtml(String tags) {
+
+        if (tags == null || tags.trim().length() == 0) return "";
+
+        StringBuilder str = new StringBuilder();
+
+        str.append("Tags: <ul>");
+
+        String[] parts = tags.split(",");
+
+        for (String part : parts) {
+            str.append(String.format("<li><a href=\"tag_%s.html\">%s</a></li>", part.trim().replaceAll(" ", "_"), part));
+        }
+
+        str.append("</ul>");
+
+        return str.toString();
+    }
+
+    private static String generateCategoriesHtml(String categories) {
+        // TODO
+        return "";
     }
 
     private static void saveStringToFile(String filePath, String content) throws IOException {
