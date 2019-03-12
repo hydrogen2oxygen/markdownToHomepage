@@ -30,6 +30,7 @@ public class MetaDataExtractor {
         }
 
         if (!StringUtils.isEmpty(line) && lastTag != null) {
+
             setMetaData(line);
         }
     }
@@ -49,6 +50,12 @@ public class MetaDataExtractor {
 
     private String cleanMetaData(String line) {
 
-        return line.replaceAll(",", "").replaceAll(":", "").replaceAll("-", "").trim();
+        if (lastTag != null && "date".equals(lastTag.toLowerCase())) {
+            return line.replaceAll(",", "").replaceAll(":", "").trim();
+        } else {
+            return line.replaceAll(",", "").replaceAll(":", "").replaceAll("-", "").trim();
+        }
+
     }
+
 }
