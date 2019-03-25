@@ -100,6 +100,12 @@
             <version>2.0.1.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.dfabulich</groupId>
+            <artifactId>sitemapgen4j</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

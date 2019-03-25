@@ -1,5 +1,6 @@
 package net.hydrogen2oxygen.markdowntohomepage.transformator;
 
+import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import lombok.Builder;
 import net.hydrogen2oxygen.markdowntohomepage.domain.PostDetails;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
@@ -25,6 +26,8 @@ public class TransformFolder {
 
         File sourceFolder = new File(website.getSourceFolder());
         File targetFolder = new File(website.getTargetFolder());
+        WebSitemapGenerator webSitemapGenerator = WebSitemapGenerator.builder(website.getBaseUrl(), targetFolder)
+                .build();
 
         System.out.println(targetFolder.getAbsolutePath());
 
@@ -66,10 +69,12 @@ public class TransformFolder {
                     headerContent(headerContent).
                     footerContent(footerContent).
                     build();
-            saveStringToFile(postDetails, targetFolder, sourceFile.getName().replace(".md", ".html"), transformedHTML);
+            saveStringToFile(website, webSitemapGenerator, postDetails, targetFolder, sourceFile.getName().replace(".md", ".html"), transformedHTML);
 
             logger.info(sourceFile.getName());
         }
+
+        webSitemapGenerator.write();
     }
 
     private static String replaceAttributes(String template, PostDetails postDetails) {
@@ -107,7 +112,7 @@ public class TransformFolder {
         return "";
     }
 
-    private static void saveStringToFile(PostDetails postDetails, File targetFolder, String fileName, String content) throws IOException {
+    private static void saveStringToFile(Website website, WebSitemapGenerator webSitemapGenerator, PostDetails postDetails, File targetFolder, String fileName, String content) throws IOException {
         String date = postDetails.getDate();
         date = date.substring(0, date.indexOf("T"));
         String dateParts [] = date.split("-");
@@ -120,6 +125,9 @@ public class TransformFolder {
 
         File file = new File(nameDir.getAbsolutePath() + File.separator + "index.html");
         FileUtils.writeStringToFile(file, content, "UTF-8");
+
+        String url = date.replaceAll("-","/") + "/" + fileNameWithoutDate + "/index.html";
+        webSitemapGenerator.addUrl(website.getBaseUrl() + "/" + url);
     }
 
     private static File generateDirectory(File targetFolder, String newFolderName) {
