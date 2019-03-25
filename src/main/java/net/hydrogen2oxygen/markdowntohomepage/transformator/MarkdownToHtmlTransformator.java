@@ -10,13 +10,6 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * TODO process Hugo metadata
- * TODO create one additional page for each tag and category (similar to wordpress)
- * TODO remove metadata
- * TODO generate rss.xml
- * TODO generate sitemap.xml
- */
 public class MarkdownToHtmlTransformator {
 
     public static final String NEWLINE = "\n";

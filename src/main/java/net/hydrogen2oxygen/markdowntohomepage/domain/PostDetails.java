@@ -16,4 +16,5 @@ public class PostDetails {
     private String url; // /2018/01/17/la-differenza-tra-rimedi-policresti-e-rimedi-piccoli/
     private String categories;
     private String tags;
+    private String transformedHTML;
 }

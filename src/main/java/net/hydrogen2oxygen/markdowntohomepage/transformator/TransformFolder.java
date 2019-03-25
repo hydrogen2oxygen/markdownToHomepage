@@ -10,6 +10,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransformFolder {
 
@@ -17,6 +19,9 @@ public class TransformFolder {
 
     @Builder
     public static void transformFolder(Website website) throws IOException {
+
+        List<String> postList = new ArrayList<>();
+        List<PostDetails> postDetailsList = new ArrayList<>();
 
         File sourceFolder = new File(website.getSourceFolder());
         File targetFolder = new File(website.getTargetFolder());
@@ -61,7 +66,7 @@ public class TransformFolder {
                     headerContent(headerContent).
                     footerContent(footerContent).
                     build();
-            saveStringToFile(targetFolder.getAbsolutePath() + "/" + sourceFile.getName().replace(".md", ".html"), transformedHTML);
+            saveStringToFile(postDetails, targetFolder, sourceFile.getName().replace(".md", ".html"), transformedHTML);
 
             logger.info(sourceFile.getName());
         }
@@ -102,8 +107,28 @@ public class TransformFolder {
         return "";
     }
 
-    private static void saveStringToFile(String filePath, String content) throws IOException {
-        File file = new File(filePath);
+    private static void saveStringToFile(PostDetails postDetails, File targetFolder, String fileName, String content) throws IOException {
+        String date = postDetails.getDate();
+        date = date.substring(0, date.indexOf("T"));
+        String dateParts [] = date.split("-");
+        String fileNameWithoutDate = fileName.replaceAll(date + "-","").replace(".html","");
+
+        File yearDir = generateDirectory(targetFolder,dateParts[0]);
+        File monthDir = generateDirectory(yearDir,dateParts[1]);
+        File dayDir = generateDirectory(monthDir,dateParts[2]);
+        File nameDir = generateDirectory(dayDir,fileNameWithoutDate);
+
+        File file = new File(nameDir.getAbsolutePath() + File.separator + "index.html");
         FileUtils.writeStringToFile(file, content, "UTF-8");
+    }
+
+    private static File generateDirectory(File targetFolder, String newFolderName) {
+
+        File newFolder = new File(targetFolder.getAbsolutePath() + File.separator + newFolderName);
+
+        if (!newFolder.exists()) {
+            newFolder.mkdir();
+        }
+        return newFolder;
     }
 }
