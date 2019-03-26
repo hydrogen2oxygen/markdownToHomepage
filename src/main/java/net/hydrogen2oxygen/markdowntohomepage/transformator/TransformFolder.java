@@ -11,8 +11,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TransformFolder {
 
@@ -28,8 +27,6 @@ public class TransformFolder {
         File targetFolder = new File(website.getTargetFolder());
         WebSitemapGenerator webSitemapGenerator = WebSitemapGenerator.builder(website.getBaseUrl(), targetFolder)
                 .build();
-
-        System.out.println(targetFolder.getAbsolutePath());
 
         if (!(sourceFolder.isDirectory() || sourceFolder.exists())) {
             logger.error("Source is not a folder or does not exist.");
@@ -52,10 +49,11 @@ public class TransformFolder {
             footerContentTemplate = FileUtils.readFileToString(new File(website.getFooterFile()), "UTF-8");
         }
 
-        for (File sourceFile : sourceFolder.listFiles()) {
+        StringBuilder indexContent = new StringBuilder();
 
-            if (!sourceFile.isFile()) continue;
-            if (!sourceFile.getName().endsWith(".md")) continue;
+        List<File> sourceFiles = getSourceFiles(sourceFolder);
+
+        for (File sourceFile : sourceFiles) {
 
             String content = FileUtils.readFileToString(sourceFile, "UTF-8");
             PostDetails postDetails = new PostDetails();
@@ -69,12 +67,42 @@ public class TransformFolder {
                     headerContent(headerContent).
                     footerContent(footerContent).
                     build();
-            saveStringToFile(website, webSitemapGenerator, postDetails, targetFolder, sourceFile.getName().replace(".md", ".html"), transformedHTML);
-
+            String url = saveStringToFile(postDetails, targetFolder, sourceFile.getName().replace(".md", ".html"), transformedHTML);
+            webSitemapGenerator.addUrl(website.getBaseUrl() + "/" + url);
+            indexContent.append(String.format("<a href=\"%s\">%s</a><br>\n",url,postDetails.getTitle()));
             logger.info(sourceFile.getName());
         }
 
+        PostDetails postDetails = new PostDetails();
+        postDetails.setTitle("");
+        String headerContent = replaceAttributes(headerContentTemplate, postDetails);
+        String footerContent = replaceAttributes(footerContentTemplate, postDetails);
+        String html = headerContent + indexContent.toString() + footerContent;
+        FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + File.separator + "index.html"), html, "UTF-8");
+
         webSitemapGenerator.write();
+    }
+
+    private static List<File> getSourceFiles(File sourceFolder) {
+
+        List<File> sourceFiles = new ArrayList<>();
+
+        for (File sourceFile : sourceFolder.listFiles()) {
+            if (!sourceFile.isFile()) continue;
+            if (!sourceFile.getName().endsWith(".md")) continue;
+
+            sourceFiles.add(sourceFile);
+        }
+
+        Collections.sort(sourceFiles, new Comparator<File>(){
+
+            @Override
+            public int compare(File o1, File o2) {
+                return o2.getName().compareTo(o1.getName());
+            }
+        });
+
+        return sourceFiles;
     }
 
     private static String replaceAttributes(String template, PostDetails postDetails) {
@@ -112,7 +140,8 @@ public class TransformFolder {
         return "";
     }
 
-    private static void saveStringToFile(Website website, WebSitemapGenerator webSitemapGenerator, PostDetails postDetails, File targetFolder, String fileName, String content) throws IOException {
+    private static String saveStringToFile(PostDetails postDetails, File targetFolder, String fileName, String content) throws IOException {
+
         String date = postDetails.getDate();
         date = date.substring(0, date.indexOf("T"));
         String dateParts [] = date.split("-");
@@ -127,7 +156,8 @@ public class TransformFolder {
         FileUtils.writeStringToFile(file, content, "UTF-8");
 
         String url = date.replaceAll("-","/") + "/" + fileNameWithoutDate + "/index.html";
-        webSitemapGenerator.addUrl(website.getBaseUrl() + "/" + url);
+
+        return url;
     }
 
     private static File generateDirectory(File targetFolder, String newFolderName) {
