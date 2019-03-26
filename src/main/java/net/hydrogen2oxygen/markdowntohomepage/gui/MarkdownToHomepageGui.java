@@ -16,6 +16,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,6 +174,14 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
             try {
                 Website website = websiteService.getByName(actionCommand.replace("Serve ",""));
                 startLocalServer(website);
+
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    try {
+                        Desktop.getDesktop().browse(new URI("http://localhost:7070"));
+                    } catch (URISyntaxException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

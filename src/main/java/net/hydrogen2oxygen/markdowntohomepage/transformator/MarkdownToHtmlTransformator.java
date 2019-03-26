@@ -28,7 +28,7 @@ public class MarkdownToHtmlTransformator {
         String h1Title = "";
 
         if (markDownDocument.getMetaData().get("title") != null) {
-            h1Title = "<h1>" + markDownDocument.getMetaData().get("title") + "</h1>\n";
+            h1Title = "<h1>" + markDownDocument.getMetaData().get("title").replaceAll("\"","") + "</h1>\n";
         }
 
         String htmlFileContent = headerContent + h1Title + htmlRendered + footerContent;
@@ -80,7 +80,8 @@ public class MarkdownToHtmlTransformator {
         }
 
         document = metaDataExtractor.getDocument();
-        document.setContent(strBuilder.toString());
+        String content = VideoTagsUtility.replaceVideoTags(strBuilder.toString());
+        document.setContent(content);
 
         return document;
     }

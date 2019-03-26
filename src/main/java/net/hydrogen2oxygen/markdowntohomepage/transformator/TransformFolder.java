@@ -52,6 +52,7 @@ public class TransformFolder {
         StringBuilder indexContent = new StringBuilder();
 
         List<File> sourceFiles = getSourceFiles(sourceFolder);
+        int count = 0;
 
         for (File sourceFile : sourceFiles) {
 
@@ -67,9 +68,24 @@ public class TransformFolder {
                     headerContent(headerContent).
                     footerContent(footerContent).
                     build();
+
+
             String url = saveStringToFile(postDetails, targetFolder, sourceFile.getName().replace(".md", ".html"), transformedHTML);
             webSitemapGenerator.addUrl(website.getBaseUrl() + "/" + url);
-            indexContent.append(String.format("<a href=\"%s\">%s</a><br>\n",url,postDetails.getTitle()));
+
+            if (count > 3) {
+                indexContent.append(String.format("<a href=\"%s\">%s</a><br>\n", url, postDetails.getTitle()));
+            } else {
+                indexContent.append(MarkdownToHtmlTransformator.
+                        builder().
+                        source(sourceFile).
+                        headerContent("").
+                        footerContent("").
+                        build()).append("<hr>");
+            }
+
+            count++;
+
             logger.info(sourceFile.getName());
         }
 
