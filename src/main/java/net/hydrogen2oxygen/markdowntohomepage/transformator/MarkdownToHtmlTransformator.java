@@ -15,7 +15,7 @@ public class MarkdownToHtmlTransformator {
     public static final String NEWLINE = "\n";
 
     @Builder
-    public static String transformMarkDownToHtml(File source, String headerContent, String footerContent) {
+    public static String transformMarkDownToHtml(File source, String headerContent, String footerContent, String url, boolean linkTitle) {
 
         String markdownString = readFileToString(source);
         MarkDownDocument markDownDocument = extractMarkdownDocumentAndMetaData(markdownString);
@@ -27,7 +27,9 @@ public class MarkdownToHtmlTransformator {
 
         String h1Title = "";
 
-        if (markDownDocument.getMetaData().get("title") != null) {
+        if (markDownDocument.getMetaData().get("title") != null && linkTitle) {
+            h1Title = "<h1><a href=\"" +  url + "\">" + markDownDocument.getMetaData().get("title").replaceAll("\"","") + "</a></h1>\n";
+        } else if (markDownDocument.getMetaData().get("title") != null) {
             h1Title = "<h1>" + markDownDocument.getMetaData().get("title").replaceAll("\"","") + "</h1>\n";
         }
 

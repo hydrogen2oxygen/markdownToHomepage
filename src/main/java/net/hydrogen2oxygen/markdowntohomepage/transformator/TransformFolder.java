@@ -3,6 +3,7 @@ package net.hydrogen2oxygen.markdowntohomepage.transformator;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import lombok.Builder;
 import net.hydrogen2oxygen.markdowntohomepage.domain.PostDetails;
+import net.hydrogen2oxygen.markdowntohomepage.domain.TagAndRelatedPosts;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -20,8 +21,7 @@ public class TransformFolder {
     @Builder
     public static void transformFolder(Website website) throws IOException {
 
-        List<String> postList = new ArrayList<>();
-        List<PostDetails> postDetailsList = new ArrayList<>();
+        Map<String,TagAndRelatedPosts> tags = new HashMap<>();
 
         File sourceFolder = new File(website.getSourceFolder());
         File targetFolder = new File(website.getTargetFolder());
@@ -59,8 +59,13 @@ public class TransformFolder {
             String content = FileUtils.readFileToString(sourceFile, "UTF-8");
             PostDetails postDetails = new PostDetails();
             PostDetailsUtility.prefillPostDetails(content, postDetails);
-            String headerContent = replaceAttributes(headerContentTemplate, postDetails);
-            String footerContent = replaceAttributes(footerContentTemplate, postDetails);
+            String categoriesList = generateCategoriesHtml(postDetails.getCategories());
+            String tagsList = generateTagsHtml(postDetails.getTags());
+            String headerContent = replaceAttributes(headerContentTemplate, postDetails, categoriesList, tagsList);
+            String footerContent = replaceAttributes(footerContentTemplate, postDetails, categoriesList, tagsList);
+            enhancePostDetails(postDetails, sourceFile.getName().replace(".md", ".html"));
+
+            collectTagsAndRelatedPosts(tags, postDetails);
 
             String transformedHTML = MarkdownToHtmlTransformator.
                     builder().
@@ -69,16 +74,17 @@ public class TransformFolder {
                     footerContent(footerContent).
                     build();
 
-
-            String url = saveStringToFile(postDetails, targetFolder, sourceFile.getName().replace(".md", ".html"), transformedHTML);
-            webSitemapGenerator.addUrl(website.getBaseUrl() + "/" + url);
+            saveStringToFile(postDetails, targetFolder, transformedHTML);
+            webSitemapGenerator.addUrl(website.getBaseUrl() + "/" + postDetails.getUrl());
 
             if (count > 3) {
-                indexContent.append(String.format("<a href=\"%s\">%s</a><br>\n", url, postDetails.getTitle()));
+                indexContent.append(String.format("<a href=\"%s\">%s</a><br>\n", postDetails.getUrl(), postDetails.getTitle()));
             } else {
                 indexContent.append(MarkdownToHtmlTransformator.
                         builder().
                         source(sourceFile).
+                        linkTitle(true).
+                        url(postDetails.getUrl()).
                         headerContent("").
                         footerContent("").
                         build()).append("<hr>");
@@ -89,14 +95,39 @@ public class TransformFolder {
             logger.info(sourceFile.getName());
         }
 
+        // Create index.html
         PostDetails postDetails = new PostDetails();
         postDetails.setTitle("");
-        String headerContent = replaceAttributes(headerContentTemplate, postDetails);
-        String footerContent = replaceAttributes(footerContentTemplate, postDetails);
+        String headerContent = replaceAttributes(headerContentTemplate, postDetails, "", "");
+        String footerContent = replaceAttributes(footerContentTemplate, postDetails, "", "");
         String html = headerContent + indexContent.toString() + footerContent;
         FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + File.separator + "index.html"), html, "UTF-8");
 
         webSitemapGenerator.write();
+    }
+
+    private static void collectTagsAndRelatedPosts(final Map<String, TagAndRelatedPosts> tags, PostDetails postDetails) {
+
+        if (postDetails.getTags() == null) {
+            return;
+        }
+
+        String tagParts [] = postDetails.getTags().split(",");
+
+        for (String tag : tagParts) {
+            if (tag.trim().length() == 0) {
+                continue;
+            }
+
+            TagAndRelatedPosts tagAndRelatedPosts = tags.get(tag);
+
+            if (tagAndRelatedPosts == null) {
+                tagAndRelatedPosts = new TagAndRelatedPosts();
+            }
+
+            tagAndRelatedPosts.getPosts().add(postDetails.getUrl());
+            tags.put(tag, tagAndRelatedPosts);
+        }
     }
 
     private static List<File> getSourceFiles(File sourceFolder) {
@@ -121,14 +152,14 @@ public class TransformFolder {
         return sourceFiles;
     }
 
-    private static String replaceAttributes(String template, PostDetails postDetails) {
+    private static String replaceAttributes(String template, PostDetails postDetails, String categoriesList, String tagsList) {
 
         String text = template
                 .replaceAll("#TITLE#", postDetails.getTitle())
                 .replaceAll("#AUTHOR#", postDetails.getAuthor())
                 .replaceAll("#DATE#", postDetails.getDate())
-                .replaceAll("#CATEGORIES#", generateCategoriesHtml(postDetails.getCategories()))
-                .replaceAll("#TAGS#", generateTagsHtml(postDetails.getTags()));
+                .replaceAll("#CATEGORIES#", categoriesList)
+                .replaceAll("#TAGS#", tagsList);
         return text;
     }
 
@@ -156,24 +187,30 @@ public class TransformFolder {
         return "";
     }
 
-    private static String saveStringToFile(PostDetails postDetails, File targetFolder, String fileName, String content) throws IOException {
+    private static PostDetails saveStringToFile(PostDetails postDetails, File targetFolder, String content) throws IOException {
 
-        String date = postDetails.getDate();
-        date = date.substring(0, date.indexOf("T"));
-        String dateParts [] = date.split("-");
-        String fileNameWithoutDate = fileName.replaceAll(date + "-","").replace(".html","");
+        String dateParts [] = postDetails.getDateOnly().split("-");
 
         File yearDir = generateDirectory(targetFolder,dateParts[0]);
         File monthDir = generateDirectory(yearDir,dateParts[1]);
         File dayDir = generateDirectory(monthDir,dateParts[2]);
-        File nameDir = generateDirectory(dayDir,fileNameWithoutDate);
+        File nameDir = generateDirectory(dayDir,postDetails.getFileNameWithoutDate());
 
         File file = new File(nameDir.getAbsolutePath() + File.separator + "index.html");
         FileUtils.writeStringToFile(file, content, "UTF-8");
 
+        return postDetails;
+    }
+
+    private static void enhancePostDetails(final PostDetails postDetails, String fileName) {
+        String date = postDetails.getDate();
+        date = date.substring(0, date.indexOf("T"));
+        String fileNameWithoutDate = fileName.replaceAll(date + "-","").replace(".html","");
         String url = date.replaceAll("-","/") + "/" + fileNameWithoutDate + "/index.html";
 
-        return url;
+        postDetails.setDateOnly(date);
+        postDetails.setFileNameWithoutDate(fileNameWithoutDate);
+        postDetails.setUrl(url);
     }
 
     private static File generateDirectory(File targetFolder, String newFolderName) {
