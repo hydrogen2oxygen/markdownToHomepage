@@ -28,7 +28,7 @@ public class MarkdownToHtmlTransformator {
         String h1Title = "";
 
         if (markDownDocument.getMetaData().get("title") != null && linkTitle) {
-            h1Title = "<h1><a href=\"" +  url + "\">" + markDownDocument.getMetaData().get("title").replaceAll("\"","") + "</a></h1>\n";
+            h1Title = "<h1><a class=\"title\" href=\"" +  url + "\">" + markDownDocument.getMetaData().get("title").replaceAll("\"","") + "</a></h1>\n";
         } else if (markDownDocument.getMetaData().get("title") != null) {
             h1Title = "<h1>" + markDownDocument.getMetaData().get("title").replaceAll("\"","") + "</h1>\n";
         }

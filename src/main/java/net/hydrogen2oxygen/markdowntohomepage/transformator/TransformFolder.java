@@ -77,8 +77,10 @@ public class TransformFolder {
             saveStringToFile(postDetails, targetFolder, transformedHTML);
             webSitemapGenerator.addUrl(website.getBaseUrl() + "/" + postDetails.getUrl());
 
+            String url = String.format("<a href=\"%s\">%s</a><br>\n", postDetails.getUrl(), postDetails.getTitle());
+
             if (count > 3) {
-                indexContent.append(String.format("<a href=\"%s\">%s</a><br>\n", postDetails.getUrl(), postDetails.getTitle()));
+                indexContent.append(url);
             } else {
                 indexContent.append(MarkdownToHtmlTransformator.
                         builder().
@@ -102,6 +104,14 @@ public class TransformFolder {
         String footerContent = replaceAttributes(footerContentTemplate, postDetails, "", "");
         String html = headerContent + indexContent.toString() + footerContent;
         FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + File.separator + "index.html"), html, "UTF-8");
+
+        // Copy Statics
+        File staticsFolderSource = new File(sourceFolder.getAbsolutePath() + "/statics");
+
+        if (staticsFolderSource.exists()) {
+            File staticsFolderTarget = new File(targetFolder.getAbsolutePath() + "/statics");
+            FileUtils.copyDirectory(staticsFolderSource, staticsFolderTarget);
+        }
 
         webSitemapGenerator.write();
     }
