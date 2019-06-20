@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.net.URI;
@@ -53,6 +54,20 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         desktop.setBackground(Colors.desktopPaneBackground);
         desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
         setContentPane(desktop);
+
+        final JFrame that = this;
+
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (JOptionPane.showConfirmDialog(that,
+                        "Are you sure you want to close this window?", "Close Window?",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                    System.exit(0);
+                }
+            }
+        });
 
         setVisible(true);
     }
