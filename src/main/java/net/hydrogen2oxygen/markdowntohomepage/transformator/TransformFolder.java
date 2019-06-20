@@ -220,7 +220,7 @@ public class TransformFolder {
         String date = postDetails.getDate();
         date = date.substring(0, date.indexOf("T"));
         String fileNameWithoutDate = fileName.replaceAll(date + "-","").replace(".html","");
-        String url = date.replaceAll("-","/") + "/" + fileNameWithoutDate + "/index.html";
+        String url = date.replaceAll("-","/") + "/" + fileNameWithoutDate; // + "/index.html";
 
         postDetails.setDateOnly(date);
         postDetails.setFileNameWithoutDate(fileNameWithoutDate);
