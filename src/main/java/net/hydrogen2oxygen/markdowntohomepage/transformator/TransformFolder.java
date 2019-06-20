@@ -106,14 +106,18 @@ public class TransformFolder {
         FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + File.separator + "index.html"), html, "UTF-8");
 
         // Copy Statics
+        copyStatics(sourceFolder, targetFolder);
+
+        webSitemapGenerator.write();
+    }
+
+    private static void copyStatics(File sourceFolder, File targetFolder) throws IOException {
         File staticsFolderSource = new File(sourceFolder.getAbsolutePath() + "/statics");
 
         if (staticsFolderSource.exists()) {
             File staticsFolderTarget = new File(targetFolder.getAbsolutePath() + "/statics");
             FileUtils.copyDirectory(staticsFolderSource, staticsFolderTarget);
         }
-
-        webSitemapGenerator.write();
     }
 
     private static void collectTagsAndRelatedPosts(final Map<String, TagAndRelatedPosts> tags, PostDetails postDetails) {
