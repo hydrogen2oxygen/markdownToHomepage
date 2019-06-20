@@ -103,6 +103,69 @@ public class TransformFolder {
         createIndexHtml(targetFolder, headerContentTemplate, footerContentTemplate, indexContent);
 
         // Create Tags Pages
+        generateTagsPages(tags, targetFolder, headerContentTemplate, footerContentTemplate);
+
+        // Create Tag Cloud
+        generateTagCloud(10, tags, targetFolder);
+
+        // Copy Statics
+        copyStatics(sourceFolder, targetFolder);
+
+        // Generate .htaccess file
+        FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + "/.htaccess.file"), "ErrorDocument 404 /404.html", UTF_8);
+
+        webSitemapGenerator.write();
+    }
+
+    private static void generateTagCloud(final int maxFontSize, Map<String,TagAndRelatedPosts> tags, File targetFolder) throws IOException {
+
+        // determine max size
+        Integer maxSize = null;
+        Integer minSize = null;
+
+        for (String tag : tags.keySet()) {
+            TagAndRelatedPosts tagAndRelatedPosts = tags.get(tag);
+
+            if (maxSize == null) {
+                maxSize = tagAndRelatedPosts.getPosts().size();
+            }
+
+            if (minSize == null) {
+                minSize = tagAndRelatedPosts.getPosts().size();
+            }
+
+            if (tagAndRelatedPosts.getPosts().size() > maxSize) {
+                maxSize = tagAndRelatedPosts.getPosts().size();
+            }
+
+            if (tagAndRelatedPosts.getPosts().size() < minSize) {
+                minSize = tagAndRelatedPosts.getPosts().size();
+            }
+        }
+
+        StringBuilder tagCloud = new StringBuilder();
+
+        for (String tag : tags.keySet()) {
+            TagAndRelatedPosts tagAndRelatedPosts = tags.get(tag);
+
+            int displayFontSize = 1;
+
+            if (tagAndRelatedPosts.getPosts().size() > minSize) {
+                displayFontSize = (maxFontSize * (tagAndRelatedPosts.getPosts().size() - minSize)) / (maxSize - minSize);
+            }
+
+            if (tagCloud.length() > 0) {
+                tagCloud.append(", ");
+            }
+
+            String cleanedTag = tag.replaceAll(" ","_").replaceAll("/","_");
+            tagCloud.append(String.format("<a class=\"cloud%s\" href=\"/tags/%s/\">%s</a>", displayFontSize, cleanedTag, tag));
+        }
+
+        FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + "/tagCloud.html"), tagCloud.toString(), UTF_8);
+    }
+
+    private static void generateTagsPages(Map<String, TagAndRelatedPosts> tags, File targetFolder, String headerContentTemplate, String footerContentTemplate) throws IOException {
         generateDirectory(targetFolder, "tags");
         File tagFolder = new File(targetFolder.getAbsolutePath() + "/tags");
 
@@ -117,10 +180,7 @@ public class TransformFolder {
 
             String cleanedTag = tag.replaceAll(" ","_").replaceAll("/","_");
 
-            for (PostAndUrl postAndUrl : tagAndRelatedPosts.getPosts()) {
-                String url = String.format("<li><a href=\"/%s\">%s</a></li>\n", postAndUrl.getUrl().replaceAll(" ","_"), postAndUrl.getTitle());
-                tagPageContent.append(url);
-            }
+            collectUrlsForEachTag(tagAndRelatedPosts, tagPageContent);
 
             tagPageContent.append("</ul>");
             tagPageContent.append(footerContent);
@@ -128,14 +188,13 @@ public class TransformFolder {
             File newFolder = generateDirectory(tagFolder, cleanedTag);
             FileUtils.writeStringToFile(new File(newFolder.getAbsolutePath() + File.separator + "index.html"), tagPageContent.toString(), UTF_8);
         }
+    }
 
-        // Copy Statics
-        copyStatics(sourceFolder, targetFolder);
-
-        // Generate .htaccess file
-        FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + "/.htaccess.file"), "ErrorDocument 404 /404.html", UTF_8);
-
-        webSitemapGenerator.write();
+    private static void collectUrlsForEachTag(TagAndRelatedPosts tagAndRelatedPosts, StringBuilder tagPageContent) {
+        for (PostAndUrl postAndUrl : tagAndRelatedPosts.getPosts()) {
+            String url = String.format("<li><a href=\"/%s\">%s</a></li>\n", postAndUrl.getUrl().replaceAll(" ","_"), postAndUrl.getTitle());
+            tagPageContent.append(url);
+        }
     }
 
     private static void createIndexHtml(File targetFolder, String headerContentTemplate, String footerContentTemplate, StringBuilder indexContent) throws IOException {
@@ -237,9 +296,9 @@ public class TransformFolder {
 
         String[] parts = tags.split(",");
 
-        for (String part : parts) {
-            String cleanedTag = part.trim().replaceAll(" ","_").replaceAll("/","_");
-            str.append(String.format("<li><a href=\"/tags/%s/\">%s</a></li>", cleanedTag, part));
+        for (String tag : parts) {
+            String cleanedTag = tag.trim().replaceAll(" ","_").replaceAll("/","_");
+            str.append(String.format("<li><a href=\"/tags/%s/\">%s</a></li>", cleanedTag, tag));
         }
 
         str.append("</ul>");
