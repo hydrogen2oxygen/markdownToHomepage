@@ -12,6 +12,7 @@ public class PostDetails {
     private String title;
     private String author;
     private String type;
+    private String description;
     private String date; // Format 2018-01-17T08:57:54+00:00
     private String dateOnly; // Format 2018-01-17
     private String fileNameWithoutDate;
