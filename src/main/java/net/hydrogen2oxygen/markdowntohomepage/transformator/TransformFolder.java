@@ -117,7 +117,7 @@ public class TransformFolder {
         webSitemapGenerator.write();
     }
 
-    private static void generateTagCloud(final int maxFontSize, Map<String,TagAndRelatedPosts> tags, File targetFolder) throws IOException {
+    private static void generateTagCloud(final int maxFontSize, Map<String, TagAndRelatedPosts> tags, File targetFolder) throws IOException {
 
         // determine max size
         Integer maxSize = null;
@@ -155,10 +155,10 @@ public class TransformFolder {
             }
 
             if (tagCloud.length() > 0) {
-                tagCloud.append(", ");
+                tagCloud.append(",  ");
             }
 
-            String cleanedTag = tag.replaceAll(" ","_").replaceAll("/","_");
+            String cleanedTag = tag.replaceAll(" ", "_").replaceAll("/", "_");
             tagCloud.append(String.format("<a class=\"cloud%s\" href=\"/tags/%s/\">%s</a>", displayFontSize, cleanedTag, tag));
         }
 
@@ -178,7 +178,7 @@ public class TransformFolder {
             tagPageContent.append("<h1>" + tag + "</h1>");
             tagPageContent.append("<ul>");
 
-            String cleanedTag = tag.replaceAll(" ","_").replaceAll("/","_");
+            String cleanedTag = tag.replaceAll(" ", "_").replaceAll("/", "_");
 
             collectUrlsForEachTag(tagAndRelatedPosts, tagPageContent);
 
@@ -192,7 +192,7 @@ public class TransformFolder {
 
     private static void collectUrlsForEachTag(TagAndRelatedPosts tagAndRelatedPosts, StringBuilder tagPageContent) {
         for (PostAndUrl postAndUrl : tagAndRelatedPosts.getPosts()) {
-            String url = String.format("<li><a href=\"/%s\">%s</a></li>\n", postAndUrl.getUrl().replaceAll(" ","_"), postAndUrl.getTitle());
+            String url = String.format("<li><a href=\"/%s\">%s</a></li>\n", postAndUrl.getUrl().replaceAll(" ", "_"), postAndUrl.getTitle());
             tagPageContent.append(url);
         }
     }
@@ -297,7 +297,7 @@ public class TransformFolder {
         String[] parts = tags.split(",");
 
         for (String tag : parts) {
-            String cleanedTag = tag.trim().replaceAll(" ","_").replaceAll("/","_");
+            String cleanedTag = tag.trim().replaceAll(" ", "_").replaceAll("/", "_");
             str.append(String.format("<li><a href=\"/tags/%s/\">%s</a></li>", cleanedTag, tag));
         }
 
@@ -329,7 +329,7 @@ public class TransformFolder {
     private static void enhancePostDetails(final PostDetails postDetails, String fileName) {
         String date = postDetails.getDate();
         date = date.substring(0, date.indexOf("T"));
-        String fileNameWithoutDate = fileName.replaceAll(date + "-", "").replace(".html", "").replaceAll("/","_");
+        String fileNameWithoutDate = fileName.replaceAll(date + "-", "").replace(".html", "").replaceAll("/", "_");
         String url = date.replaceAll("-", "/") + "/" + fileNameWithoutDate; // + "/index.html";
 
         postDetails.setDateOnly(date);
