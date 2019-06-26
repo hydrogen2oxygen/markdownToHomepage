@@ -24,6 +24,7 @@ public class TransformFolder {
     public static void transformFolder(Website website) throws IOException {
 
         Map<String, TagAndRelatedPosts> tags = new HashMap<>();
+        RssFeedGenerator rssFeedGenerator = new RssFeedGenerator(website);
 
         File sourceFolder = new File(website.getSourceFolder());
         File targetFolder = new File(website.getTargetFolder());
@@ -68,6 +69,8 @@ public class TransformFolder {
             enhancePostDetails(postDetails, sourceFile.getName().replace(".md", ".html"));
 
             collectTagsAndRelatedPosts(tags, postDetails);
+
+            rssFeedGenerator.addEntry(postDetails);
 
             String transformedHTML = MarkdownToHtmlTransformator.
                     builder().
@@ -115,6 +118,8 @@ public class TransformFolder {
         FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + "/.htaccess.file"), "ErrorDocument 404 /404.html", UTF_8);
 
         webSitemapGenerator.write();
+
+        rssFeedGenerator.generate(targetFolder.getAbsolutePath() + "/feed.rss");
     }
 
     private static void generateTagCloud(final int maxFontSize, Map<String, TagAndRelatedPosts> tags, File targetFolder) throws IOException {
