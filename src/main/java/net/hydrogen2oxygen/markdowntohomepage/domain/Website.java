@@ -30,4 +30,9 @@ public class Website {
     private String gitUrl;
     private String gitUser;
     private String gitPassword;
+    private String ftpUser;
+    private String ftpPassword;
+    private String ftpHost;
+    private Integer ftpPort;
+    private String ftpRootPath;
 }
