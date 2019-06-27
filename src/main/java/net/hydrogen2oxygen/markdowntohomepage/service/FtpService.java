@@ -15,20 +15,21 @@ public class FtpService {
 
     private Website website;
     private FTPClient ftp;
+    private File directory;
 
     public static void main(String[] args) throws IOException {
         if (args.length == 6) {
-            File file = new File(args[0]);
-
             Website website = new Website();
             website.setFtpHost(args[1]);
             website.setFtpPort(Integer.parseInt(args[2]));
             website.setFtpUser(args[3]);
             website.setFtpPassword(args[4]);
             website.setFtpRootPath(args[5]);
+            website.setTargetFolder(args[0]);
 
             FtpService ftpService = new FtpService(website);
-            ftpService.uploadFile(file,"/" + file.getName());
+            System.out.println("=============================");
+            ftpService.uploadDirectory(new File(website.getTargetFolder()));
             ftpService.close();
         }
     }
@@ -67,6 +68,49 @@ public class FtpService {
         }
 
         ftp.storeFile(website.getFtpRootPath() + "/" + path, new FileInputStream(file));
+    }
+
+    public void uploadDirectory(File directory) throws IOException {
+
+        if (!directory.exists() || !directory.isDirectory()) {
+            throw new IOException("The path provided does not exist or it is not a directory!");
+        }
+
+        if (this.directory == null) {
+            this.directory = directory;
+        }
+
+        for (File file : directory.listFiles()) {
+
+            if (file.isDirectory()) {
+                uploadDirectory(file);
+                continue;
+            }
+
+            String path = getDirectoryPath(file.getParentFile());
+
+            System.err.println(path);
+            System.out.println(file.getAbsolutePath());
+            System.out.println(file.getParentFile().getName());
+        }
+    }
+
+    private String getDirectoryPath(File directory) {
+        if (directory.equals(this.directory)) {
+            return "";
+        }
+
+        String path = "";
+
+        File currentDirectory = directory;
+
+        while (!currentDirectory.equals(this.directory)) {
+            path = "/" + currentDirectory.getName() + path;
+
+            currentDirectory = currentDirectory.getParentFile();
+        }
+
+        return path;
     }
 
     public void close() throws IOException {
