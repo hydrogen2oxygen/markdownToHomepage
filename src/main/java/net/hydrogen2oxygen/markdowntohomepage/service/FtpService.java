@@ -48,10 +48,6 @@ public class FtpService {
         }
 
         ftp.login(website.getFtpUser(), website.getFtpPassword());
-
-        for (String file : listFiles("/")) {
-            System.out.println(file);
-        }
     }
 
     public Collection<String> listFiles(String path) throws IOException {
@@ -89,9 +85,54 @@ public class FtpService {
 
             String path = getDirectoryPath(file.getParentFile());
 
+            createDirectory(path);
+
             System.err.println(path);
             System.out.println(file.getAbsolutePath());
             System.out.println(file.getParentFile().getName());
+        }
+    }
+
+    public boolean directoryExist(String path) {
+        try {
+            return ftp.changeWorkingDirectory(website.getFtpRootPath() + path);
+        } catch (IOException e) {
+            return false;
+        } finally {
+            changeToParentDirectory();
+        }
+    }
+
+    private void changeToParentDirectory() {
+        try {
+            ftp.changeToParentDirectory();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createDirectory(String path) {
+        try {
+
+            String parts [] = path.split("/");
+            String newPath = "";
+
+            for (String part : parts) {
+
+                if(part.length() == 0) {
+                    continue;
+                }
+
+                newPath += "/" + part;
+
+                if (!directoryExist(newPath)) {
+                    System.out.println("create path " + newPath);
+                    ftp.makeDirectory(website.getFtpRootPath() + newPath);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -106,7 +147,6 @@ public class FtpService {
 
         while (!currentDirectory.equals(this.directory)) {
             path = "/" + currentDirectory.getName() + path;
-
             currentDirectory = currentDirectory.getParentFile();
         }
 
