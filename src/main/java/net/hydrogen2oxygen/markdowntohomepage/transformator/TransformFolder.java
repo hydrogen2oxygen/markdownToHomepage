@@ -159,6 +159,7 @@ public class TransformFolder {
             }
 
             String cleanedTag = tag.replaceAll(" ", "_").replaceAll("/", "_");
+            cleanedTag = cleanNameDirectory(cleanedTag);
             tagCloud.append(String.format("<a class=\"cloud%s\" href=\"/tags/%s/\">%s</a>", displayFontSize, cleanedTag, tag));
         }
 
@@ -179,6 +180,7 @@ public class TransformFolder {
             tagPageContent.append("<ul>");
 
             String cleanedTag = tag.replaceAll(" ", "_").replaceAll("/", "_");
+            cleanedTag = cleanNameDirectory(cleanedTag);
 
             collectUrlsForEachTag(tagAndRelatedPosts, tagPageContent);
 
@@ -298,6 +300,7 @@ public class TransformFolder {
 
         for (String tag : parts) {
             String cleanedTag = tag.trim().replaceAll(" ", "_").replaceAll("/", "_");
+            cleanedTag = cleanNameDirectory(cleanedTag);
             str.append(String.format("<li><a href=\"/tags/%s/\">%s</a></li>", cleanedTag, tag));
         }
 
@@ -318,7 +321,7 @@ public class TransformFolder {
         File yearDir = generateDirectory(targetFolder, dateParts[0]);
         File monthDir = generateDirectory(yearDir, dateParts[1]);
         File dayDir = generateDirectory(monthDir, dateParts[2]);
-        File nameDir = generateDirectory(dayDir, postDetails.getFileNameWithoutDate());
+        File nameDir = generateDirectory(dayDir, cleanNameDirectory(postDetails.getFileNameWithoutDate()));
 
         File file = new File(nameDir.getAbsolutePath() + File.separator + "index.html");
         FileUtils.writeStringToFile(file, content, UTF_8);
@@ -326,11 +329,24 @@ public class TransformFolder {
         return postDetails;
     }
 
+    private static String cleanNameDirectory(String directoryName) {
+
+        String cleanedDirectoryName = directoryName
+                .replaceAll("ä", "ae")
+                .replaceAll("Ä", "Ae")
+                .replaceAll("Ö", "Oe")
+                .replaceAll("ö", "oe")
+                .replaceAll("ü", "ue")
+                .replaceAll("Ü", "Ue");
+
+        return cleanedDirectoryName;
+    }
+
     private static void enhancePostDetails(final PostDetails postDetails, String fileName) {
         String date = postDetails.getDate();
         date = date.substring(0, date.indexOf("T"));
         String fileNameWithoutDate = fileName.replaceAll(date + "-", "").replace(".html", "").replaceAll("/", "_");
-        String url = date.replaceAll("-", "/") + "/" + fileNameWithoutDate; // + "/index.html";
+        String url = date.replaceAll("-", "/") + "/" + cleanNameDirectory(fileNameWithoutDate); // + "/index.html";
 
         postDetails.setDateOnly(date);
         postDetails.setFileNameWithoutDate(fileNameWithoutDate);
