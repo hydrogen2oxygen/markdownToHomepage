@@ -64,8 +64,15 @@ public class TransformFolder {
             String content = FileUtils.readFileToString(sourceFile, UTF_8);
             PostDetails postDetails = new PostDetails();
             PostDetailsUtility.prefillPostDetails(content, postDetails);
+
+            if (postDetails.getTitle() == null) {
+                System.err.println("Skipping " + sourceFile.getName());
+                continue;
+            }
+
             String categoriesList = generateCategoriesHtml(postDetails.getCategories());
             String tagsList = generateTagsHtml(postDetails.getTags());
+            System.out.println(sourceFile.getName());
             String headerContent = replaceAttributes(headerContentTemplate, postDetails, categoriesList, tagsList);
             String footerContent = replaceAttributes(footerContentTemplate, postDetails, categoriesList, tagsList);
             enhancePostDetails(postDetails, sourceFile.getName().replace(".md", ".html"));
@@ -287,13 +294,18 @@ public class TransformFolder {
 
     private static String replaceAttributes(String template, PostDetails postDetails, String categoriesList, String tagsList) {
 
-        String text = template
-                .replaceAll("#TITLE#", postDetails.getTitle())
-                .replaceAll("#AUTHOR#", postDetails.getAuthor())
-                .replaceAll("#DATE#", postDetails.getDate())
-                .replaceAll("#CATEGORIES#", categoriesList)
-                .replaceAll("#TAGS#", tagsList);
-        return text;
+        try {
+            String text = template
+                    .replaceAll("#TITLE#", postDetails.getTitle())
+                    .replaceAll("#AUTHOR#", postDetails.getAuthor())
+                    .replaceAll("#DATE#", postDetails.getDate())
+                    .replaceAll("#CATEGORIES#", categoriesList)
+                    .replaceAll("#TAGS#", tagsList);
+            return text;
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private static String replaceAttributes(String template, String title) {
@@ -351,6 +363,8 @@ public class TransformFolder {
     private static String cleanNameDirectory(String directoryName) {
 
         String cleanedDirectoryName = directoryName
+                .replaceAll("'", "")
+                .replaceAll("\"", "")
                 .replaceAll("ä", "ae")
                 .replaceAll("Ä", "Ae")
                 .replaceAll("Ö", "Oe")

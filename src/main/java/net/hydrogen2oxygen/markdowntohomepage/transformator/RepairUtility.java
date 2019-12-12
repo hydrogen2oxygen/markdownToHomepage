@@ -27,7 +27,7 @@ public class RepairUtility {
 
                 if (file.getName().endsWith(".md")) {
                     file = repairName(file);
-                    //System.out.println(file.getName());
+                    System.out.println(file.getName());
                 }
             }
         }
@@ -45,6 +45,10 @@ public class RepairUtility {
             String content = FileUtils.readFileToString(file, "UTF-8");
             PostDetails postDetails = new PostDetails();
             PostDetailsUtility.prefillPostDetails(content, postDetails);
+
+            if (postDetails.getTitle() == null) {
+                System.out.println(file.getName());
+            }
 
             String newName = file.getParent() + File.separator + postDetails.getDate().substring(0,10) + "-" + postDetails.getTitle().trim()
                     .replaceAll(" ","-")
