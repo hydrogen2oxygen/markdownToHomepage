@@ -45,10 +45,12 @@ public class TransformFolder {
         String footerContentTemplate = "";
 
         if (!StringUtils.isEmpty(website.getHeaderFile())) {
+            createMissingStructure(new File(website.getHeaderFile()));
             headerContentTemplate = FileUtils.readFileToString(new File(website.getHeaderFile()), UTF_8);
         }
 
         if (!StringUtils.isEmpty(website.getFooterFile())) {
+            createMissingStructure(new File(website.getFooterFile()));
             footerContentTemplate = FileUtils.readFileToString(new File(website.getFooterFile()), UTF_8);
         }
 
@@ -120,6 +122,18 @@ public class TransformFolder {
         webSitemapGenerator.write();
 
         rssFeedGenerator.generate(targetFolder.getAbsolutePath() + "/feed.rss");
+    }
+
+    private static void createMissingStructure(File file) throws IOException {
+        // Init File and Folder structure if not exist
+        if (!file.exists()) {
+            // Check if folder exist
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            FileUtils.touch(file);
+        }
     }
 
     private static void generateTagCloud(final int maxFontSize, Map<String, TagAndRelatedPosts> tags, File targetFolder) throws IOException {
