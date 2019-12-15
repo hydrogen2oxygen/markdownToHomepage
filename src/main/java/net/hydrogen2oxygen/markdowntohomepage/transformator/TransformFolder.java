@@ -71,10 +71,10 @@ public class TransformFolder {
             }
 
             String categoriesList = generateCategoriesHtml(postDetails.getCategories());
-            String tagsList = generateTagsHtml(postDetails.getTags());
+            String tagsList = generateTagsHtml(postDetails.getTags(), website.getBaseUrl());
             System.out.println(sourceFile.getName());
-            String headerContent = replaceAttributes(headerContentTemplate, postDetails, categoriesList, tagsList);
-            String footerContent = replaceAttributes(footerContentTemplate, postDetails, categoriesList, tagsList);
+            String headerContent = replaceAttributes(headerContentTemplate, postDetails, categoriesList, tagsList, website);
+            String footerContent = replaceAttributes(footerContentTemplate, postDetails, categoriesList, tagsList, website);
             enhancePostDetails(postDetails, sourceFile.getName().replace(".md", ".html"));
 
             collectTagsAndRelatedPosts(tags, postDetails);
@@ -112,13 +112,13 @@ public class TransformFolder {
         }
 
         // Create index.html
-        createIndexHtml(targetFolder, headerContentTemplate, footerContentTemplate, indexContent);
+        createIndexHtml(targetFolder, headerContentTemplate, footerContentTemplate, indexContent, website);
 
         // Create Tags Pages
-        generateTagsPages(tags, targetFolder, headerContentTemplate, footerContentTemplate);
+        generateTagsPages(tags, targetFolder, headerContentTemplate, footerContentTemplate, website);
 
         // Create Tag Cloud
-        generateTagCloud(10, tags, targetFolder);
+        generateTagCloud(10, tags, targetFolder, website.getBaseUrl());
 
         // Copy Statics
         copyStatics(sourceFolder, targetFolder);
@@ -143,7 +143,7 @@ public class TransformFolder {
         }
     }
 
-    private static void generateTagCloud(final int maxFontSize, Map<String, TagAndRelatedPosts> tags, File targetFolder) throws IOException {
+    private static void generateTagCloud(final int maxFontSize, Map<String, TagAndRelatedPosts> tags, File targetFolder, String baseUrl) throws IOException {
 
         // determine max size
         Integer maxSize = null;
@@ -186,20 +186,20 @@ public class TransformFolder {
 
             String cleanedTag = tag.replaceAll(" ", "_").replaceAll("/", "_");
             cleanedTag = cleanNameDirectory(cleanedTag);
-            tagCloud.append(String.format("<a class=\"cloud%s\" href=\"/tags/%s/\">%s</a>", displayFontSize, cleanedTag, tag));
+            tagCloud.append(String.format("<a class=\"cloud%s\" href=\"%s/tags/%s/\">%s</a>", baseUrl, displayFontSize, cleanedTag, tag));
         }
 
         FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + "/tagCloud.html"), tagCloud.toString(), UTF_8);
     }
 
-    private static void generateTagsPages(Map<String, TagAndRelatedPosts> tags, File targetFolder, String headerContentTemplate, String footerContentTemplate) throws IOException {
+    private static void generateTagsPages(Map<String, TagAndRelatedPosts> tags, File targetFolder, String headerContentTemplate, String footerContentTemplate, Website website) throws IOException {
         generateDirectory(targetFolder, "tags");
         File tagFolder = new File(targetFolder.getAbsolutePath() + "/tags");
 
         for (String tag : tags.keySet()) {
             TagAndRelatedPosts tagAndRelatedPosts = tags.get(tag);
-            String headerContent = replaceAttributes(headerContentTemplate, tag);
-            String footerContent = replaceAttributes(footerContentTemplate, tag);
+            String headerContent = replaceAttributes(headerContentTemplate, tag, website);
+            String footerContent = replaceAttributes(footerContentTemplate, tag, website);
             StringBuilder tagPageContent = new StringBuilder();
             tagPageContent.append(headerContent);
             tagPageContent.append("<h1>" + tag + "</h1>");
@@ -208,7 +208,7 @@ public class TransformFolder {
             String cleanedTag = tag.replaceAll(" ", "_").replaceAll("/", "_");
             cleanedTag = cleanNameDirectory(cleanedTag);
 
-            collectUrlsForEachTag(tagAndRelatedPosts, tagPageContent);
+            collectUrlsForEachTag(tagAndRelatedPosts, tagPageContent, website.getBaseUrl());
 
             tagPageContent.append("</ul>");
             tagPageContent.append(footerContent);
@@ -218,18 +218,18 @@ public class TransformFolder {
         }
     }
 
-    private static void collectUrlsForEachTag(TagAndRelatedPosts tagAndRelatedPosts, StringBuilder tagPageContent) {
+    private static void collectUrlsForEachTag(TagAndRelatedPosts tagAndRelatedPosts, StringBuilder tagPageContent, String baseUrl) {
         for (PostAndUrl postAndUrl : tagAndRelatedPosts.getPosts()) {
-            String url = String.format("<li><a href=\"/%s\">%s</a></li>\n", postAndUrl.getUrl().replaceAll(" ", "_"), postAndUrl.getTitle());
+            String url = String.format("<li><a href=\"%s/%s\">%s</a></li>\n", baseUrl, postAndUrl.getUrl().replaceAll(" ", "_"), postAndUrl.getTitle());
             tagPageContent.append(url);
         }
     }
 
-    private static void createIndexHtml(File targetFolder, String headerContentTemplate, String footerContentTemplate, StringBuilder indexContent) throws IOException {
+    private static void createIndexHtml(File targetFolder, String headerContentTemplate, String footerContentTemplate, StringBuilder indexContent, Website website) throws IOException {
         PostDetails postDetails = new PostDetails();
         postDetails.setTitle("");
-        String headerContent = replaceAttributes(headerContentTemplate, postDetails, "", "");
-        String footerContent = replaceAttributes(footerContentTemplate, postDetails, "", "");
+        String headerContent = replaceAttributes(headerContentTemplate, postDetails, "", "", website);
+        String footerContent = replaceAttributes(footerContentTemplate, postDetails, "", "", website);
         String html = headerContent + indexContent.toString() + footerContent;
         FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + File.separator + "index.html"), html, UTF_8);
     }
@@ -292,10 +292,11 @@ public class TransformFolder {
         return sourceFiles;
     }
 
-    private static String replaceAttributes(String template, PostDetails postDetails, String categoriesList, String tagsList) {
+    private static String replaceAttributes(String template, PostDetails postDetails, String categoriesList, String tagsList, Website website) {
 
         try {
             String text = template
+                    .replaceAll("#BASEURL#", website.getBaseUrl())
                     .replaceAll("#TITLE#", postDetails.getTitle())
                     .replaceAll("#AUTHOR#", postDetails.getAuthor())
                     .replaceAll("#DATE#", postDetails.getDate())
@@ -308,10 +309,11 @@ public class TransformFolder {
         }
     }
 
-    private static String replaceAttributes(String template, String title) {
+    private static String replaceAttributes(String template, String title, Website website) {
 
         String text = template
                 .replaceAll("#TITLE#", title)
+                .replaceAll("#BASEURL#", website.getBaseUrl())
                 .replaceAll("#AUTHOR#", "")
                 .replaceAll("#DATE#", "")
                 .replaceAll("#CATEGORIES#", "")
@@ -319,7 +321,7 @@ public class TransformFolder {
         return text;
     }
 
-    private static String generateTagsHtml(String tags) {
+    private static String generateTagsHtml(String tags, String baseUrl) {
 
         if (tags == null || tags.trim().length() == 0) return "";
 
@@ -332,7 +334,7 @@ public class TransformFolder {
         for (String tag : parts) {
             String cleanedTag = tag.trim().replaceAll(" ", "_").replaceAll("/", "_");
             cleanedTag = cleanNameDirectory(cleanedTag);
-            str.append(String.format("<li><a href=\"/tags/%s/\">%s</a></li>", cleanedTag, tag));
+            str.append(String.format("<li><a href=\"%s/tags/%s/\">%s</a></li>", baseUrl, cleanedTag, tag));
         }
 
         str.append("</ul>");
