@@ -79,6 +79,16 @@ public class ToolBar extends JInternalFrame {
         generateButton.setBounds(606,0,100,30);
         add(generateButton);
 
+        JButton loadButton = new JButton("Load");
+        loadButton.addActionListener(e -> System.out.println("Load"));
+        loadButton.setBounds(708,0,100,30);
+        add(loadButton);
+
+        JButton serveButton = new JButton("Serve");
+        serveButton.addActionListener(e -> System.out.println("Serve"));
+        serveButton.setBounds(810,0,100,30);
+        add(serveButton);
+
         setVisible(true);
     }
 }
