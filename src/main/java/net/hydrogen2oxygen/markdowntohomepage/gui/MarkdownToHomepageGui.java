@@ -52,6 +52,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         desktop = new JDesktopPane();
         desktop.setBackground(Colors.desktopPaneBackground);
         desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
+        createToolBar();
         setContentPane(desktop);
 
         final JFrame that = this;
@@ -69,6 +70,10 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         });
 
         setVisible(true);
+    }
+
+    private void createToolBar() {
+        desktop.add(new ToolBar(websiteService));
     }
 
     private void createMenuBar() {
