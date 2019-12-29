@@ -11,6 +11,7 @@ public class WebsiteTest {
         website.setAuthor("John Smith");
         website.setTitle("My Blog");
         website.setDescription("Personal Stuff");
+        website.setBaseUrl("https://www.hydrogen2oxygen.net/blog/");
         website.setGitUrl("https://git...");
         website.setGitUser("user");
         website.setGitPassword("secretOrUseSSH");

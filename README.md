@@ -17,7 +17,7 @@ Write a config.json:
           "author" : "John Smith",
           "title" : "My Blog",
           "description" : "Personal Stuff",
-          "baseUrl" : null,
+          "baseUrl" : "https://www.hydrogen2oxygen.net/blog/",
           "sourceFolder" : "/myBlog/source",
           "targetFolder" : "/myBlog/public",
           "headerFile" : "/myBlog/templates/header.html",
