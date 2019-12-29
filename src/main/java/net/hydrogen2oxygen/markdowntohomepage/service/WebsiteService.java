@@ -1,28 +1,27 @@
 package net.hydrogen2oxygen.markdowntohomepage.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.Setter;
 import net.hydrogen2oxygen.markdowntohomepage.domain.ConfigurationObject;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import net.hydrogen2oxygen.markdowntohomepage.gui.ICallback;
-import net.hydrogen2oxygen.markdowntohomepage.gui.MarkdownToHomepageGui;
-import net.hydrogen2oxygen.markdowntohomepage.gui.PostListOverviewFrame;
 import net.hydrogen2oxygen.markdowntohomepage.transformator.StringUtility;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
 
 @Component
 public class WebsiteService {

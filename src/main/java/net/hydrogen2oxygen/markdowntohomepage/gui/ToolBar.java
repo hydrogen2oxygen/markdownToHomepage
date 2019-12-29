@@ -7,7 +7,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -35,25 +34,15 @@ public class ToolBar extends JInternalFrame {
             e.printStackTrace();
         }
 
-        JComboBox postSelectBox = new JComboBox();
-        postSelectBox.setBounds(202,0,300,30);
-        add(postSelectBox);
-
         websitesSelectBox.addActionListener(e -> {
             JComboBox cb = (JComboBox)e.getSource();
             String websiteName = (String)cb.getSelectedItem();
             System.out.println(websiteName);
 
             try {
-                postSelectBox.removeAllItems();
                 Website website = websiteService.getByName(websiteName);
                 MarkdownToHomepageGui.getInstance().getWebsiteService().synchronizeWebsite(website, object -> {
-                    File folder = new File(website.getSourceFolder());
-                    for (File file : folder.listFiles()) {
-                        if (file.getName().endsWith("md")) {
-                            postSelectBox.addItem(file.getName());
-                        }
-                    }
+
                 });
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -64,30 +53,24 @@ public class ToolBar extends JInternalFrame {
             }
         });
 
-        postSelectBox.addActionListener(e -> {
-            JComboBox cb = (JComboBox)e.getSource();
-            String postName = (String)cb.getSelectedItem();
-            System.out.println(postName);
-        });
-
         JButton newPostButton = new JButton("New Post");
         newPostButton.addActionListener(e -> callWebsiteAction("New Post"));
-        newPostButton.setBounds(504,0,100,30);
+        newPostButton.setBounds(202,0,100,30);
         add(newPostButton);
 
         JButton generateButton = new JButton("Generate");
         generateButton.addActionListener(e -> callWebsiteAction("Generate"));
-        generateButton.setBounds(606,0,100,30);
+        generateButton.setBounds(304,0,100,30);
         add(generateButton);
 
         JButton serveButton = new JButton("Serve");
         serveButton.addActionListener(e -> callWebsiteAction("Serve"));
-        serveButton.setBounds(708,0,100,30);
+        serveButton.setBounds(406,0,100,30);
         add(serveButton);
 
         JButton loadButton = new JButton("FTP-Upload");
         loadButton.addActionListener(e -> callWebsiteAction("FTP-Upload"));
-        loadButton.setBounds(810,0,100,30);
+        loadButton.setBounds(508,0,100,30);
         add(loadButton);
 
         setVisible(true);

@@ -1,13 +1,15 @@
 package net.hydrogen2oxygen.markdowntohomepage.transformator;
 
-import com.rometools.rome.feed.synd.*;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndFeedImpl;
 import com.rometools.rome.io.SyndFeedOutput;
 import net.hydrogen2oxygen.markdowntohomepage.domain.PostDetails;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 
 import java.io.FileWriter;
 import java.io.Writer;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
