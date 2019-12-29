@@ -68,4 +68,16 @@ public class RepairUtility {
 
         return file;
     }
+
+    public static String convertTitelToUrlFragment(String title) {
+        return title
+                .trim()
+                .replaceAll(" ","-")
+                .replaceAll("\"","")
+                .replaceAll("'","-")
+                .replaceAll("ä","ae")
+                .replaceAll("ö","oe")
+                .replaceAll("ü","ue")
+                .toLowerCase();
+    }
 }

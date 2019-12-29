@@ -3,6 +3,7 @@ package net.hydrogen2oxygen.markdowntohomepage.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.hydrogen2oxygen.markdowntohomepage.transformator.RepairUtility;
 
 import java.time.LocalDateTime;
 
@@ -27,9 +28,10 @@ public class PostDetails {
     public void initNewPostDetails(Website website) {
         title = "New Post";
         author = website.getAuthor();
+        draft = "true";
         date = LocalDateTime.now().toString();
         dateOnly = date.substring(0,10);
-//        url =
+        url = "/" + dateOnly.replaceAll("-","/") + "/" + RepairUtility.convertTitelToUrlFragment(title);
     }
 
     public Boolean isDraft() {

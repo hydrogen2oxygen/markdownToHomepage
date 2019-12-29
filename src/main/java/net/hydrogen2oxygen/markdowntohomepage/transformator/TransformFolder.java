@@ -187,7 +187,7 @@ public class TransformFolder {
 
             String cleanedTag = tag.replaceAll(" ", "_").replaceAll("/", "_");
             cleanedTag = cleanNameDirectory(cleanedTag);
-            tagCloud.append(String.format("<a class=\"cloud%s\" href=\"%s/tags/%s/\">%s</a>", baseUrl, displayFontSize, cleanedTag, tag));
+            tagCloud.append(String.format("<a class=\"cloud%s\" href=\"%s/tags/%s/\">%s</a>", displayFontSize, baseUrl, cleanedTag, tag));
         }
 
         FileUtils.writeStringToFile(new File(targetFolder.getAbsolutePath() + "/tagCloud.html"), tagCloud.toString(), UTF_8);
