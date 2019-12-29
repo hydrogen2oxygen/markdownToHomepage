@@ -10,20 +10,33 @@ Build with maven:
 Write a config.json:
 
     {
-      "websites": {
-        "Test": {
-          "name": "Test",
-          "sourceFolder": "src/test/resources",
-          "targetFolder": "target",
-          "headerFile": "src/test/resources/testHeader.html",
-          "footerFile": "src/test/resources/testFooter.html"
-        }
-      }
+      "id" : 0,
+      "name" : "My Blog",
+      "author" : "John Smith",
+      "title" : "My Blog",
+      "description" : "Personal Stuff",
+      "baseUrl" : null,
+      "sourceFolder" : "/myBlog/source",
+      "targetFolder" : "/myBlog/public",
+      "headerFile" : "/myBlog/templates/header.html",
+      "footerFile" : "/myBlog/templates/footer.html",
+      "gitUrl" : "https://git...",
+      "gitUser" : "user",
+      "gitPassword" : "secretOrUseSSH",
+      "ftpUser" : "user",
+      "ftpPassword" : "secret",
+      "ftpHost" : "ftp://...",
+      "ftpPort" : 22,
+      "ftpRootPath" : "/etc/www/myBlog/"
     }
 
 Then start it with:
 
     java -jar target/markdowntohomepage-0.0.1-SNAPSHOT.jar [config.json]
+
+Currently I'm working on a Swing Gui, later a Angular 9 Online Gui is planned:
+
+![gui](docs/gui.jpg)
 
 #### Optional: ConfigurationFile
 In CommandLine Mode the application does not use Spring's own configuration, but you can define one or use the exisiting application.properties and point towards it (3rd argument).
