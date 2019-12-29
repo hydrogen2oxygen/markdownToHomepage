@@ -35,6 +35,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     private JDesktopPane desktop;
     @Getter
     private WebsiteService websiteService;
+    private Undertow undertow;
 
     private MarkdownToHomepageGui() {
 
@@ -241,12 +242,24 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
 
     private void startLocalServer(Website website) {
 
-        Undertow.builder()
-                .addHttpListener(7070, "localhost")
-                .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
-                .setHandler(resource(new PathResourceManager(Paths.get(website.getTargetFolder()), 100))
-                        .setDirectoryListingEnabled(true))
-                .build().start();
+        if (undertow == null) {
+            undertow = Undertow.builder()
+                    .addHttpListener(7070, "localhost")
+                    .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
+                    .setHandler(resource(new PathResourceManager(Paths.get(website.getTargetFolder()), 100))
+                            .setDirectoryListingEnabled(true))
+                    .build();
+            undertow.start();
+        } else {
+            undertow.stop();
+            undertow = Undertow.builder()
+                    .addHttpListener(7070, "localhost")
+                    .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
+                    .setHandler(resource(new PathResourceManager(Paths.get(website.getTargetFolder()), 100))
+                            .setDirectoryListingEnabled(true))
+                    .build();
+            undertow.start();
+        }
     }
 
     private boolean loadWebsite(String websiteName) throws IOException {

@@ -7,12 +7,13 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
 public class ToolBar extends JInternalFrame {
+
+    private JComboBox websitesSelectBox;
 
     public ToolBar(WebsiteService websiteService) {
         setLayout(null);
@@ -21,7 +22,7 @@ public class ToolBar extends JInternalFrame {
         setBorder(null);
         setBounds(0,0,1000,55);
 
-        JComboBox websitesSelectBox = new JComboBox();
+        websitesSelectBox = new JComboBox();
         websitesSelectBox.setBounds(0,0,200,30);
         add(websitesSelectBox);
 
@@ -70,25 +71,30 @@ public class ToolBar extends JInternalFrame {
         });
 
         JButton newPostButton = new JButton("New Post");
-        newPostButton.addActionListener(e -> System.out.println("New Post"));
+        newPostButton.addActionListener(e -> callWebsiteAction("New Post"));
         newPostButton.setBounds(504,0,100,30);
         add(newPostButton);
 
         JButton generateButton = new JButton("Generate");
-        generateButton.addActionListener(e -> System.out.println("Generate"));
+        generateButton.addActionListener(e -> callWebsiteAction("Generate"));
         generateButton.setBounds(606,0,100,30);
         add(generateButton);
 
-        JButton loadButton = new JButton("Load");
-        loadButton.addActionListener(e -> System.out.println("Load"));
-        loadButton.setBounds(708,0,100,30);
-        add(loadButton);
-
         JButton serveButton = new JButton("Serve");
-        serveButton.addActionListener(e -> System.out.println("Serve"));
-        serveButton.setBounds(810,0,100,30);
+        serveButton.addActionListener(e -> callWebsiteAction("Serve"));
+        serveButton.setBounds(708,0,100,30);
         add(serveButton);
 
+        JButton loadButton = new JButton("FTP-Upload");
+        loadButton.addActionListener(e -> callWebsiteAction("FTP-Upload"));
+        loadButton.setBounds(810,0,100,30);
+        add(loadButton);
+
         setVisible(true);
+    }
+
+    private void callWebsiteAction(String actionName) {
+        ActionEvent event = new ActionEvent(this, 0, actionName + " " + websitesSelectBox.getSelectedItem());
+        MarkdownToHomepageGui.getInstance().actionPerformed(event);
     }
 }
