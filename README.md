@@ -10,24 +10,28 @@ Build with maven:
 Write a config.json:
 
     {
-      "id" : 0,
-      "name" : "My Blog",
-      "author" : "John Smith",
-      "title" : "My Blog",
-      "description" : "Personal Stuff",
-      "baseUrl" : null,
-      "sourceFolder" : "/myBlog/source",
-      "targetFolder" : "/myBlog/public",
-      "headerFile" : "/myBlog/templates/header.html",
-      "footerFile" : "/myBlog/templates/footer.html",
-      "gitUrl" : "https://git...",
-      "gitUser" : "user",
-      "gitPassword" : "secretOrUseSSH",
-      "ftpUser" : "user",
-      "ftpPassword" : "secret",
-      "ftpHost" : "ftp://...",
-      "ftpPort" : 22,
-      "ftpRootPath" : "/etc/www/myBlog/"
+      "websites": {
+        "My Blog": {
+          "id" : 0,
+          "name" : "My Blog",
+          "author" : "John Smith",
+          "title" : "My Blog",
+          "description" : "Personal Stuff",
+          "baseUrl" : null,
+          "sourceFolder" : "/myBlog/source",
+          "targetFolder" : "/myBlog/public",
+          "headerFile" : "/myBlog/templates/header.html",
+          "footerFile" : "/myBlog/templates/footer.html",
+          "gitUrl" : "https://git...",
+          "gitUser" : "user",
+          "gitPassword" : "secretOrUseSSH",
+          "ftpUser" : "user",
+          "ftpPassword" : "secret",
+          "ftpHost" : "ftp://...",
+          "ftpPort" : 22,
+          "ftpRootPath" : "/etc/www/myBlog/"
+        }
+      }
     }
 
 Then start it with:
