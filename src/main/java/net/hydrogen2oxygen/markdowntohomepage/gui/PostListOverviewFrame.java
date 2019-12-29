@@ -54,6 +54,7 @@ public class PostListOverviewFrame extends JInternalFrame {
 
         System.out.println("Reload website");
         File folder = new File(website.getSourceFolder());
+        listModel.clear();
 
         if (folder.listFiles() == null) {
             try {
