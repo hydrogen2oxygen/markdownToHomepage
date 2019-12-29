@@ -102,6 +102,7 @@ public class PostEditorInternalFrame extends JInternalFrame {
     }
 
     private void savePost() {
+
         System.err.println("-----------------");
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -165,6 +166,18 @@ public class PostEditorInternalFrame extends JInternalFrame {
         }
 
         return "";
+    }
+
+    private void setTextFieldValue(String key, String value) {
+
+        for (DynamicTextfield textfield : textfieldList) {
+            if (textfield.getLabel().getText().toLowerCase().equals(key.toLowerCase())) {
+                textfield.getTextField().setText(value);
+                return;
+            }
+        }
+
+        return;
     }
 
     private void loadContent() {

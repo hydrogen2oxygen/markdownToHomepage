@@ -31,7 +31,7 @@ public class PostDetails {
         draft = "true";
         date = LocalDateTime.now().toString();
         dateOnly = date.substring(0,10);
-        url = "/" + dateOnly.replaceAll("-","/") + "/" + RepairUtility.convertTitelToUrlFragment(title);
+        regenerateUrl();
     }
 
     public Boolean isDraft() {
@@ -40,5 +40,11 @@ public class PostDetails {
         }
 
         return false;
+    }
+
+    public String regenerateUrl() {
+        if (title == null || dateOnly == null) return "";
+        url = "/" + dateOnly.replaceAll("-","/") + "/" + RepairUtility.convertTitelToUrlFragment(title);
+        return url;
     }
 }

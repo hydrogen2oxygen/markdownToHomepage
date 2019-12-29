@@ -18,9 +18,9 @@ public class PostDetailsUtility {
         postDetails.setType(markDownDocument.getMetaData().get("type"));
         postDetails.setDraft(markDownDocument.getMetaData().get("draft"));
         postDetails.setDate(markDownDocument.getMetaData().get("date"));
-        postDetails.setUrl(markDownDocument.getMetaData().get("url"));
         postDetails.setTags(markDownDocument.getMetaData().get("tags"));
         postDetails.setCategories(markDownDocument.getMetaData().get("categories"));
+        postDetails.regenerateUrl();
     }
 
     public static String removeDetailsFromMarkdownString(String markdownString) {
