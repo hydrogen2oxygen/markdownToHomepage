@@ -65,7 +65,8 @@ public class TransformFolder {
             PostDetails postDetails = new PostDetails();
             PostDetailsUtility.prefillPostDetails(content, postDetails);
 
-            if (postDetails.getTitle() == null) {
+            if (postDetails.getTitle() == null ||
+                postDetails.isDraft()) {
                 System.err.println("Skipping " + sourceFile.getName());
                 continue;
             }

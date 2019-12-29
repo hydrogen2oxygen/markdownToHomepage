@@ -39,7 +39,7 @@ public class RepairUtility {
      * @return
      * @throws IOException
      */
-    private static File repairName(File file) throws IOException {
+    public static File repairName(File file) throws IOException {
 
         if (!file.getName().startsWith("20")) {
             String content = FileUtils.readFileToString(file, "UTF-8");

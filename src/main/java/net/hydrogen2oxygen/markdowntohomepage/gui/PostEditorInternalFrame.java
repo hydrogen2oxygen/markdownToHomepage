@@ -3,7 +3,9 @@ package net.hydrogen2oxygen.markdowntohomepage.gui;
 import net.hydrogen2oxygen.markdowntohomepage.domain.PostDetails;
 import net.hydrogen2oxygen.markdowntohomepage.domain.Website;
 import net.hydrogen2oxygen.markdowntohomepage.transformator.PostDetailsUtility;
+import net.hydrogen2oxygen.markdowntohomepage.transformator.RepairUtility;
 import org.apache.commons.io.FileUtils;
+import org.springframework.util.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,15 +28,22 @@ public class PostEditorInternalFrame extends JInternalFrame {
 
     public PostEditorInternalFrame(Website website, String postFileName) {
 
+        this.website = website;
+        boolean newPost = false;
+
         int y = 10;
         int width = 1000;
         int height = 800;
 
-        postFile = new File(website.getSourceFolder() + "/" + postFileName);
+        if (!StringUtils.isEmpty(postFileName)) {
+            postFile = new File(website.getSourceFolder() + "/" + postFileName);
+            loadContent();
+            setTitle(website.getName() + " - Post: " + postFileName);
+        } else {
+            setTitle("New Post");
+            newPost = true;
+        }
 
-        loadContent();
-
-        setTitle(website.getName() + " - Post: " + postFileName);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setClosable(true);
         setResizable(true);
@@ -44,6 +53,9 @@ public class PostEditorInternalFrame extends JInternalFrame {
         postDetailPanel.setBackground(Colors.postDetailsPaneBackground);
 
         PostDetails postDetails = new PostDetails();
+        if (newPost) {
+            postDetails.initNewPostDetails(website);
+        }
         PostDetailsUtility.prefillPostDetails(content, postDetails);
         y = DynamicComponentsUtility.insertDynamicTextfields(this, postDetails, textfieldList, y);
         postDetailPanel.setPreferredSize(new Dimension(width, y + 10));
@@ -65,14 +77,16 @@ public class PostEditorInternalFrame extends JInternalFrame {
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setFont(font);
-        textArea.setText(PostDetailsUtility.removeDetailsFromMarkdownString(content));
+        if (!newPost) {
+            textArea.setText(PostDetailsUtility.removeDetailsFromMarkdownString(content));
+        }
         scrollPane = new JScrollPane(textArea);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBounds(0, y + 11, width - 10, height - (y + 40));
         add(scrollPane);
 
-        setBounds(500, 20, width, height);
+        setBounds(10, 70, width, height);
         setVisible(true);
         scrollPane.revalidate();
 
@@ -105,6 +119,10 @@ public class PostEditorInternalFrame extends JInternalFrame {
         stringBuilder.append(textArea.getText());
 
         try {
+            if (postFile == null) {
+                postFile = new File(website.getSourceFolder() + "/" + getTextFieldValue("dateOnly") + "-" + getTextFieldValue("title") + ".md");
+                postFile = RepairUtility.repairName(postFile);
+            }
             FileUtils.writeStringToFile(postFile, stringBuilder.toString(),"UTF-8");
         } catch (IOException e) {
             e.printStackTrace();

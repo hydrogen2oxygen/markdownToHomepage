@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +15,7 @@ public class PostDetails {
     private String author;
     private String type;
     private String description;
+    private String draft;
     private String date; // Format 2018-01-17T08:57:54+00:00
     private String dateOnly; // Format 2018-01-17
     private String fileNameWithoutDate;
@@ -20,4 +23,20 @@ public class PostDetails {
     private String categories;
     private String tags;
     private String transformedHTML;
+
+    public void initNewPostDetails(Website website) {
+        title = "New Post";
+        author = website.getAuthor();
+        date = LocalDateTime.now().toString();
+        dateOnly = date.substring(0,10);
+//        url =
+    }
+
+    public Boolean isDraft() {
+        if (draft != null && Boolean.valueOf(draft)) {
+            return true;
+        }
+
+        return false;
+    }
 }

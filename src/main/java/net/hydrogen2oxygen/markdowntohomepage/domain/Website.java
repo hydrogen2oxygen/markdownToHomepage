@@ -20,6 +20,7 @@ public class Website {
     private long id;
 
     private String name;
+    private String author;
     private String title;
     private String description;
     private String baseUrl;

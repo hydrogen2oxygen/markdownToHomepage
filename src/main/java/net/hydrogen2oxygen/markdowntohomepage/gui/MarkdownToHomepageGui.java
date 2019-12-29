@@ -175,6 +175,19 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
             return;
         }
 
+        if (actionCommand.startsWith("New Post ")) {
+
+            try {
+                Website website = websiteService.getByName(actionCommand.replace("New Post ",""));
+                PostEditorInternalFrame postEditorInternalFrame = new PostEditorInternalFrame(website, null);
+                getDesktop().add(postEditorInternalFrame);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            return;
+        }
+
         if (actionCommand.startsWith("Generate ")) {
 
             try {
