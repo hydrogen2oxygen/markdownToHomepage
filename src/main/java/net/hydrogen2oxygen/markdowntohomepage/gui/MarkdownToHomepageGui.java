@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static io.undertow.Handlers.resource;
 import static javax.swing.JSplitPane.DIVIDER;
@@ -71,6 +72,26 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         });
 
         setVisible(true);
+    }
+
+    public MarkdownToHomepageGui init() {
+        try {
+            List<Website> websites = websiteService.loadAllWebsites();
+            if (websites.size() > 0) {
+                final Website website = websites.get(0);
+                MarkdownToHomepageGui.getInstance().getWebsiteService().synchronizeWebsite(website, object -> {
+                    loadWebsite(website);
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSchException e) {
+            e.printStackTrace();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+
+        return this;
     }
 
     private void createToolBar() {
@@ -143,7 +164,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        getInstance();
+        getInstance().init();
     }
 
     public static MarkdownToHomepageGui getInstance() {
@@ -288,7 +309,7 @@ public class MarkdownToHomepageGui extends JFrame implements ActionListener {
         return true;
     }
 
-    private void loadWebsite(Website website) {
+    public void loadWebsite(Website website) {
 
         System.out.println("load website ...");
         System.out.println(website);

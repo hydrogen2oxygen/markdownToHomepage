@@ -40,9 +40,9 @@ public class ToolBar extends JInternalFrame {
             System.out.println(websiteName);
 
             try {
-                Website website = websiteService.getByName(websiteName);
+                final Website website = websiteService.getByName(websiteName);
                 MarkdownToHomepageGui.getInstance().getWebsiteService().synchronizeWebsite(website, object -> {
-
+                    MarkdownToHomepageGui.getInstance().loadWebsite(website);
                 });
             } catch (IOException ex) {
                 ex.printStackTrace();

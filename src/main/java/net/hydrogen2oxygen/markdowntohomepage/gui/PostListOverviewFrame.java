@@ -35,7 +35,7 @@ public class PostListOverviewFrame extends JInternalFrame {
 
         reloadWebsiteContent();
 
-        setBounds(20,20,400,800);
+        setBounds(20,60,400,800);
         setVisible(true);
     }
 

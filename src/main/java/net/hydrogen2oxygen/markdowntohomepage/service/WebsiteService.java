@@ -51,7 +51,7 @@ public class WebsiteService {
         return configurationObject;
     }
 
-    public Collection<Website> loadAllWebsites() throws IOException {
+    public List<Website> loadAllWebsites() throws IOException {
         ConfigurationObject configurationObject = getConfigurationObject();
         List<Website> list = new ArrayList<Website>(configurationObject.getWebsites().values());
         return list;
