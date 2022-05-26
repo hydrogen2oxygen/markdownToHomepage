@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <undertow.version>2.1.6</undertow.version>
+        <undertow.version>2.2.11.Final</undertow.version>
     </properties>
 
     <dependencies>
